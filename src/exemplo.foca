@@ -1,0 +1,6 @@
+int main()
+
+begin
+
+	int c = 5 + 2.3;
+end
