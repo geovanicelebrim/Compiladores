@@ -82,6 +82,12 @@ stringstream cabecalho;
 %token TK_TIPO_CHAR
 %token TK_TIPO_BOOL
 %token TK_LOGICO TK_AND TK_OR
+%token TK_MENOR
+%token TK_MAIOR
+%token TK_MENOR_IGUAL
+%token TK_MAIOR_IGUAL
+%token TK_IGUAL
+%token TK_DIFERENTE
 
 %start S
 
@@ -154,12 +160,22 @@ COMANDO 	: ATRIBUICAO
 			}
 			;
 
-ATRIBUICAO  : TK_ID TK_ATR E
+ATRIBUICAO  : TK_ID TK_ATR E_REL
 			{
-				$$.traducao = "\t" + $3.traducao + "\n\t" + mapa_variavel[$1.label].nome_temp + " = " + $3.label;				
+
+				string tipo = mapa_variavel[$1.label].tipo;
+
+				if(mapa_operacoes[tipo+$2.label+$3.tipo].operando == 1)
+					$$.traducao = "\t" + $3.traducao + "\n\t" + mapa_variavel[$1.label].nome_temp + " = " + "(" + mapa_operacoes[$1.tipo+$2.label+$3.tipo].tipo + ")" + $3.label;
+				else if(mapa_operacoes[tipo+$2.label+$3.tipo].operando == 0)
+					$$.traducao = "\t" + $3.traducao + "\n\t" + mapa_variavel[$1.label].nome_temp + " = " + $3.label;
+				else{
+					erro = true;
+					cout << "Erro na linha: " << nlinha << ". Atribuição inválida!\n";
+				}
 			}
 
-DECLARACAO	: TK_TIPO_INT TK_ID TK_ATR E
+DECLARACAO	: TK_TIPO_INT TK_ID TK_ATR E_REL
 //Declarao de int!
 			{
 				info_variavel atributos = { $1.label, gera_variavel_temporaria($1.label, $2.label) };
@@ -170,7 +186,6 @@ DECLARACAO	: TK_TIPO_INT TK_ID TK_ATR E
 					$$.traducao = "\t" + $4.traducao + "\n\t" + atributos.nome_temp + " = " + $4.label + ";";
 				else{
 					erro = true;
-					cout << "Erro na linha: " << nlinha << ". Atribuição inválida!\n";
 				}
 				
 			}
@@ -181,7 +196,7 @@ DECLARACAO	: TK_TIPO_INT TK_ID TK_ATR E
 				$$.traducao = "\n\t" + atributos.nome_temp + " = " + "0" + ";";
 
 			}
-			| TK_TIPO_FLOAT TK_ID TK_ATR E
+			| TK_TIPO_FLOAT TK_ID TK_ATR E_REL
 			{
 				info_variavel atributos = { $1.label, gera_variavel_temporaria($1.label, $2.label)};
 
@@ -198,8 +213,45 @@ DECLARACAO	: TK_TIPO_INT TK_ID TK_ATR E
 			{
 				info_variavel atributos = { $1.label, gera_variavel_temporaria($1.label, $2.label) };
 
-				$$.traducao = "\n\t" + atributos.nome_temp + " = " + "0.0" + ";";
 
+				$$.traducao = "\n\t" + atributos.nome_temp + " = " + "0.0" + ";";
+				//$$.tipo = mapa_variavel[$2.label].tipo;
+
+				//$$.tipo = $2.tipo;
+
+			}
+			| TK_TIPO_BOOL TK_ID TK_ATR E_REL
+			{
+				info_variavel atributos = { $1.label, gera_variavel_temporaria($1.label, $2.label)};
+
+				if(mapa_operacoes[$1.label+$3.label+$4.tipo].operando == 1)
+					$$.traducao = "\t" + $4.traducao + "\n\t" + atributos.nome_temp + " = " + "(" + mapa_operacoes[$1.label+$3.label+$4.tipo].tipo + ")" + $4.label + ";";
+				else if(mapa_operacoes[$1.label+$3.label+$4.tipo].operando == 0)
+					$$.traducao = "\t" + $4.traducao + "\n\t" + atributos.nome_temp + " = " + $4.label + ";";
+				else{
+					erro = true;
+					cout << "Erro na linha: " << nlinha << ". Atribuição inválida!\n";
+				}
+			}
+			| TK_TIPO_BOOL TK_ID
+			{
+				info_variavel atributos = { $1.label, gera_variavel_temporaria($1.label, $2.label) };
+
+				$$.traducao = "\n\t" + atributos.nome_temp + " = " + "1" + ";";
+
+			}
+			;
+
+E_REL		: E_REL TK_REL_OP E
+			{
+				$$.label = $3.label;
+				cout << $1.label << " " << $2.label << " " << $3.label << endl;
+			}
+			| E
+			{
+				$$.label = $1.label;
+				$$.traducao = $1.traducao;
+				$$.tipo = $1.tipo;
 			}
 			;
 
@@ -208,12 +260,14 @@ E 			: E TK_ARIT_OP_S E_TEMP
 				string nome_variavel_temporaria = gera_variavel_temporaria(mapa_operacoes[$1.tipo+$2.label+$3.tipo].tipo);
 				$$.label = nome_variavel_temporaria;
 
-				if(mapa_operacoes[$1.tipo+$2.label+$3.tipo].operando == 0)
+				if(mapa_operacoes[$1.tipo+$2.label+$3.tipo].operando == 0) {
 					$$.traducao = $3.traducao + "\t" + $1.traducao + "\n\t" + nome_variavel_temporaria + " = " + $1.label + " " + $2.label + " " + $3.label + ";";
-				else if(mapa_operacoes[$1.tipo+$2.label+$3.tipo].operando == 1)
+				}
+				else if(mapa_operacoes[$1.tipo+$2.label+$3.tipo].operando == 1) {
 					$$.traducao = $3.traducao + "\t" + $1.traducao + "\n\t" + nome_variavel_temporaria + " = " + "(" + mapa_operacoes[$1.tipo+$2.label+$3.tipo].tipo + ")" + $1.label + " " + $2.label + " " + $3.label + ";";
-				else
+				} else {
 					$$.traducao = $3.traducao + "\t" + $1.traducao + "\n\t" + nome_variavel_temporaria + " = " + $1.label + " " + $2.label + " " + "(" + mapa_operacoes[$1.tipo+$2.label+$3.tipo].tipo + ")" + $3.label + ";";
+				}
 				$$.tipo = mapa_operacoes[$1.tipo+$2.label+$3.tipo].tipo;
 
 
@@ -222,6 +276,7 @@ E 			: E TK_ARIT_OP_S E_TEMP
 			{
 				$$.label = $1.label;
 				$$.traducao = $1.traducao;
+				$$.tipo = $1.tipo;
 			}
 			;
 
@@ -231,12 +286,15 @@ E_TEMP		: E_TEMP TK_ARIT_OP_M UNAL
 
 				$$.label = nome_variavel_temporaria;
 
-				if(mapa_operacoes[$1.tipo+$2.label+$3.tipo].operando == 0)
-					$$.traducao = $1.traducao + "\n\t" + nome_variavel_temporaria + " = " + $1.label + " " + $2.label + " " + $3.label + ";";
-				else if(mapa_operacoes[$1.tipo+$2.label+$3.tipo].operando == 1)
-					$$.traducao = $1.traducao + "\n\t" + nome_variavel_temporaria + " = " + "(" + mapa_operacoes[$1.tipo+$2.label+$3.tipo].tipo + ")" + $1.label + " " + $2.label + " " + $3.label + ";";
-				else
-					$$.traducao = $1.traducao + "\n\t" + nome_variavel_temporaria + " = " + $1.label + " " + $2.label + " " + "(" + mapa_operacoes[$1.tipo+$2.label+$3.tipo].tipo + ")" + $3.label + ";";
+				
+
+				if(mapa_operacoes[$1.tipo+$2.label+$3.tipo].operando == 0) {
+					$$.traducao = $3.traducao + $1.traducao + "\n\t" + nome_variavel_temporaria + " = " + $1.label + " " + $2.label + " " + $3.label + ";";
+				} else if(mapa_operacoes[$1.tipo+$2.label+$3.tipo].operando == 1) {
+					$$.traducao = $3.traducao + $1.traducao + "\n\t" + nome_variavel_temporaria + " = " + "(" + mapa_operacoes[$1.tipo+$2.label+$3.tipo].tipo + ")" + $1.label + " " + $2.label + " " + $3.label + ";";
+				} else {
+					$$.traducao = $3.traducao + $1.traducao + "\n\t" + nome_variavel_temporaria + " = " + $1.label + " " + $2.label + " " + "(" + mapa_operacoes[$1.tipo+$2.label+$3.tipo].tipo + ")" + $3.label + ";";
+				}
 				
 				$$.tipo = mapa_operacoes[$1.tipo+$2.label+$3.tipo].tipo;
 			}	
@@ -267,15 +325,23 @@ UNAL		: TK_SUB VAL
 			}
 			;
 
-VAL			: TK_NUM
+VAL			: '(' E ')'
+			{
+				$$.label = $2.label;
+				$$.traducao = $2.traducao;
+				$$.tipo = $2.tipo;
+			}
+			| TK_NUM
 			{
 				$$.label = $1.label;
 				$$.traducao = "";
+				$$.tipo = $1.tipo;
 			}
 			| TK_REAL
 			{
 				$$.label = $1.label;
 				$$.traducao = "";
+				$$.tipo = $1.tipo;
 			}
 			| TK_ID
 			{
@@ -286,7 +352,41 @@ VAL			: TK_NUM
 				}
 
 				$$.label = mapa_variavel[$1.label].nome_temp;
-				$$.traducao = $$.label;
+				$$.traducao = "";
+				$$.tipo = mapa_variavel[$1.label].tipo;
+				
+			}
+			;
+
+TK_REL_OP	: TK_MENOR
+			{
+				$$.traducao = $1.traducao;
+				$$.label = $1.label;
+			}
+			| TK_MAIOR
+			{
+				$$.traducao = $1.traducao;
+				$$.label = $1.label;
+			}
+			| TK_MENOR_IGUAL
+			{
+				$$.traducao = $1.traducao;
+				$$.label = $1.label;
+			}
+			| TK_MAIOR_IGUAL
+			{
+				$$.traducao = $1.traducao;
+				$$.label = $1.label;
+			}
+			| TK_IGUAL
+			{
+				$$.traducao = $1.traducao;
+				$$.label = $1.label;
+			}
+			| TK_DIFERENTE
+			{
+				$$.traducao = $1.traducao;
+				$$.label = $1.label;
 			}
 			;
 
@@ -339,7 +439,6 @@ string gera_variavel_temporaria(string tipo, string nome) {
 
 	contador++;
 
-
 	info_variavel atributos = {tipo, nome_temporario.str()};
 	if(mapa_variavel.find(nome_aux) == mapa_variavel.end()) {
 		mapa_variavel[nome_aux] = atributos;
@@ -363,8 +462,26 @@ int main( int argc, char* argv[] )
 //Terminar de fazer a tabela
 	mapa_operacoes["int=float"] = {"null", -1};
 	mapa_operacoes["int+float"] = {"float", 1};
+	mapa_operacoes["int-float"]	= {"float", 1};
+	mapa_operacoes["int*float"] = {"float", 1};
+	mapa_operacoes["int/float"] = {"float", 1};
 	mapa_operacoes["float=int"] = {"float", 1};
-	mapa_operacoes["float*int"] = {"float", 2};	
+	mapa_operacoes["float*int"] = {"float", 2};
+	mapa_operacoes["float-int"] = {"float", 2};
+	mapa_operacoes["float+int"] = {"float", 2};
+	mapa_operacoes["float/int"] = {"float", 2};
+
+	mapa_operacoes["float=float"] = {"float", 0};
+	mapa_operacoes["float+float"] = {"float", 0};
+	mapa_operacoes["float-float"] = {"float", 0};
+	mapa_operacoes["float*float"] = {"float", 0};
+	mapa_operacoes["float/float"] = {"float", 0};
+
+	mapa_operacoes["int+int"] = {"int", 0};
+	mapa_operacoes["int-int"] = {"int", 0};
+	mapa_operacoes["int*int"] = {"int", 0};
+	mapa_operacoes["int/int"] = {"int", 0};
+
 
 	yyparse();
 

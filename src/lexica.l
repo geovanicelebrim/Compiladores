@@ -117,6 +117,42 @@ ID {LETRA}({LETRA}|{NUM})*
 				return TK_NOT;
 			}
 
+"<"			{
+				yylval.traducao = yytext;
+				yylval.label = yytext;
+				return TK_MENOR;
+			}
+
+">"			{
+				yylval.traducao = yytext;
+				yylval.label = yytext;
+				return TK_MAIOR;
+			}
+
+"<="		{
+				yylval.traducao = yytext;
+				yylval.label = yytext;
+				return TK_MENOR_IGUAL;
+			}
+
+">="		{
+				yylval.traducao = yytext;
+				yylval.label = yytext;
+				return TK_MAIOR_IGUAL;
+			}
+
+"=="		{
+				yylval.traducao = yytext;
+				yylval.label = yytext;
+				return TK_IGUAL;
+			}
+
+"!="		{
+				yylval.traducao = yytext;
+				yylval.label = yytext;
+				return TK_DIFERENTE;
+			}
+
 {NUM}		{	
 				yylval.traducao = yytext;
 				yylval.label = yytext;
