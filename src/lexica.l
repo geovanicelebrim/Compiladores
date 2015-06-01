@@ -23,6 +23,8 @@ ID {LETRA}({LETRA}|{NUM})*
 				nlinha++;
 			}
 
+"#".*\n 	{}
+
 "="			{
 				yylval.label = yytext;
 				return TK_ATR;
@@ -66,6 +68,11 @@ ID {LETRA}({LETRA}|{NUM})*
 "float"		{
 				yylval.label = yytext;
 				return TK_TIPO_FLOAT;
+			}
+
+"double"	{
+				yylval.label = yytext;
+				return TK_TIPO_DOUBLE;
 			}
 
 "char"		{

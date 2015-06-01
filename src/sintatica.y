@@ -79,6 +79,7 @@ stringstream cabecalho;
 %token TK_NOT
 %token TK_PLUSPLUS
 %token TK_TIPO_FLOAT
+%token TK_TIPO_DOUBLE
 %token TK_TIPO_CHAR
 %token TK_TIPO_BOOL
 %token TK_LOGICO TK_AND TK_OR
@@ -166,10 +167,16 @@ ATRIBUICAO  : TK_ID TK_ATR E_REL
 				string tipo = mapa_variavel[$1.label].tipo;
 
 				if(mapa_operacoes[tipo+$2.label+$3.tipo].operando == 1)
-					$$.traducao = "\t" + $3.traducao + "\n\t" + mapa_variavel[$1.label].nome_temp + " = " + "(" + mapa_operacoes[$1.tipo+$2.label+$3.tipo].tipo + ")" + $3.label;
+					$$.traducao = "\t" + $3.traducao + "\n\t" + mapa_variavel[$1.label].nome_temp + " = " + "(" + mapa_operacoes[$1.tipo+$2.label+$3.tipo].tipo + ")" + $3.label + ";\n";
 				else if(mapa_operacoes[tipo+$2.label+$3.tipo].operando == 0)
-					$$.traducao = "\t" + $3.traducao + "\n\t" + mapa_variavel[$1.label].nome_temp + " = " + $3.label;
+					$$.traducao = "\t" + $3.traducao + "\n\t" + mapa_variavel[$1.label].nome_temp + " = " + $3.label + ";\n";
 				else{
+					erro = true;
+					cout << "Erro na linha: " << nlinha << ". Atribuição inválida!\n";
+				}
+
+				if($3.tipo == "null" || $3.tipo == "")
+				{
 					erro = true;
 					cout << "Erro na linha: " << nlinha << ". Atribuição inválida!\n";
 				}
@@ -220,6 +227,30 @@ DECLARACAO	: TK_TIPO_INT TK_ID TK_ATR E_REL
 				//$$.tipo = $2.tipo;
 
 			}
+			| TK_TIPO_DOUBLE TK_ID TK_ATR E_REL
+			{
+				info_variavel atributos = { $1.label, gera_variavel_temporaria($1.label, $2.label)};
+
+				if(mapa_operacoes[$1.label+$3.label+$4.tipo].operando == 1)
+					$$.traducao = "\t" + $4.traducao + "\n\t" + atributos.nome_temp + " = " + "(" + mapa_operacoes[$1.label+$3.label+$4.tipo].tipo + ")" + $4.label + ";";
+				else if(mapa_operacoes[$1.label+$3.label+$4.tipo].operando == 0)
+					$$.traducao = "\t" + $4.traducao + "\n\t" + atributos.nome_temp + " = " + $4.label + ";";
+				else{
+					erro = true;
+					cout << "Erro na linha: " << nlinha << ". Atribuição inválida!\n";
+				}
+			}
+			| TK_TIPO_DOUBLE TK_ID
+			{
+				info_variavel atributos = { $1.label, gera_variavel_temporaria($1.label, $2.label) };
+
+
+				$$.traducao = "\n\t" + atributos.nome_temp + " = " + "0.0" + ";";
+				//$$.tipo = mapa_variavel[$2.label].tipo;
+
+				//$$.tipo = $2.tipo;
+
+			}
 			| TK_TIPO_BOOL TK_ID TK_ATR E_REL
 			{
 				info_variavel atributos = { $1.label, gera_variavel_temporaria($1.label, $2.label)};
@@ -244,8 +275,13 @@ DECLARACAO	: TK_TIPO_INT TK_ID TK_ATR E_REL
 
 E_REL		: E_REL TK_REL_OP E
 			{
-				$$.label = $3.label;
-				cout << $1.label << " " << $2.label << " " << $3.label << endl;
+
+				string nome_variavel_temporaria = gera_variavel_temporaria(mapa_operacoes[$1.tipo+$2.label+$3.tipo].tipo);
+				$$.label = nome_variavel_temporaria;
+
+
+				//$$.label = $3.label;
+				$$.traducao = $1.traducao + $3.traducao + "\n\t" + $$.label + " = " +$1.label + " " + $2.label + " " + $3.label + ";\n";
 			}
 			| E
 			{
@@ -325,7 +361,7 @@ UNAL		: TK_SUB VAL
 			}
 			;
 
-VAL			: '(' E ')'
+VAL			: '(' E_REL ')'
 			{
 				$$.label = $2.label;
 				$$.traducao = $2.traducao;
@@ -461,6 +497,12 @@ int main( int argc, char* argv[] )
 	
 //Terminar de fazer a tabela
 	mapa_operacoes["int=float"] = {"null", -1};
+	mapa_operacoes["int+boolean"] = {"null", -1};
+	mapa_operacoes["int=boolean"] = {"null", -1};
+	//Tratar este caso, pois a representação booleana é com um inteiro
+	//mapa_operacoes["boolean=int"] = {"null", -1};
+
+
 	mapa_operacoes["int+float"] = {"float", 1};
 	mapa_operacoes["int-float"]	= {"float", 1};
 	mapa_operacoes["int*float"] = {"float", 1};
@@ -482,6 +524,12 @@ int main( int argc, char* argv[] )
 	mapa_operacoes["int*int"] = {"int", 0};
 	mapa_operacoes["int/int"] = {"int", 0};
 
+	mapa_operacoes["int>int"] = {"int", 0};
+	mapa_operacoes["int<int"] = {"int", 0};
+	mapa_operacoes["int>=int"] = {"int", 0};
+	mapa_operacoes["int<=int"] = {"int", 0};
+	mapa_operacoes["int==int"] = {"int", 0};
+	mapa_operacoes["int!=int"] = {"int", 0};
 
 	yyparse();
 
