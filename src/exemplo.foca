@@ -1,12 +1,9 @@
 int main()
 
 begin
-	int a = (2 + 2) * 1;
-	float b = 2 - (a - 1);
 
-	boolean c;
-	c = 2 > 1;
+	boolan c;
+	c  = (2 > 4) < 3;
 
-	boolean d = c;
 
 end

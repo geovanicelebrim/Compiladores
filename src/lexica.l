@@ -70,11 +70,6 @@ ID {LETRA}({LETRA}|{NUM})*
 				return TK_TIPO_FLOAT;
 			}
 
-"double"	{
-				yylval.label = yytext;
-				return TK_TIPO_DOUBLE;
-			}
-
 "char"		{
 				yylval.label = yytext;
 				return TK_TIPO_CHAR;
@@ -92,6 +87,12 @@ ID {LETRA}({LETRA}|{NUM})*
 				yylval.traducao = yytext;
 				yylval.label = yytext;
 				return TK_PLUSPLUS;
+			}
+
+"--"		{
+				yylval.traducao = yytext;
+				yylval.label = yytext;
+				return TK_SUBSUB;
 			}
 
 "+"			{

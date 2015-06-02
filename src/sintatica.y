@@ -78,8 +78,8 @@ stringstream cabecalho;
 %token TK_FIM TK_ERROR
 %token TK_NOT
 %token TK_PLUSPLUS
+%token TK_SUBSUB
 %token TK_TIPO_FLOAT
-%token TK_TIPO_DOUBLE
 %token TK_TIPO_CHAR
 %token TK_TIPO_BOOL
 %token TK_LOGICO TK_AND TK_OR
@@ -147,7 +147,7 @@ COMANDO 	: DECLARACAO
 			}
 			;
 
-COMANDO 	: E
+COMANDO 	: E_REL
 			{
 				$$.label = $1.label;
 				$$.traducao = $1.traducao;
@@ -183,7 +183,6 @@ ATRIBUICAO  : TK_ID TK_ATR E_REL
 			}
 
 DECLARACAO	: TK_TIPO_INT TK_ID TK_ATR E_REL
-//Declarao de int!
 			{
 				info_variavel atributos = { $1.label, gera_variavel_temporaria($1.label, $2.label) };
 
@@ -227,53 +226,16 @@ DECLARACAO	: TK_TIPO_INT TK_ID TK_ATR E_REL
 				//$$.tipo = $2.tipo;
 
 			}
-			| TK_TIPO_DOUBLE TK_ID TK_ATR E_REL
-			{
-				info_variavel atributos = { $1.label, gera_variavel_temporaria($1.label, $2.label)};
-
-				if(mapa_operacoes[$1.label+$3.label+$4.tipo].operando == 1)
-					$$.traducao = "\t" + $4.traducao + "\n\t" + atributos.nome_temp + " = " + "(" + mapa_operacoes[$1.label+$3.label+$4.tipo].tipo + ")" + $4.label + ";";
-				else if(mapa_operacoes[$1.label+$3.label+$4.tipo].operando == 0)
-					$$.traducao = "\t" + $4.traducao + "\n\t" + atributos.nome_temp + " = " + $4.label + ";";
-				else{
-					erro = true;
-					cout << "Erro na linha: " << nlinha << ". Atribuição inválida!\n";
-				}
-			}
-			| TK_TIPO_DOUBLE TK_ID
-			{
-				info_variavel atributos = { $1.label, gera_variavel_temporaria($1.label, $2.label) };
-
-
-				$$.traducao = "\n\t" + atributos.nome_temp + " = " + "0.0" + ";";
-				//$$.tipo = mapa_variavel[$2.label].tipo;
-
-				//$$.tipo = $2.tipo;
-
-			}
-			| TK_TIPO_BOOL TK_ID TK_ATR E_REL
-			{
-				info_variavel atributos = { $1.label, gera_variavel_temporaria($1.label, $2.label)};
-
-				if(mapa_operacoes[$1.label+$3.label+$4.tipo].operando == 1)
-					$$.traducao = "\t" + $4.traducao + "\n\t" + atributos.nome_temp + " = " + "(" + mapa_operacoes[$1.label+$3.label+$4.tipo].tipo + ")" + $4.label + ";";
-				else if(mapa_operacoes[$1.label+$3.label+$4.tipo].operando == 0)
-					$$.traducao = "\t" + $4.traducao + "\n\t" + atributos.nome_temp + " = " + $4.label + ";";
-				else{
-					erro = true;
-					cout << "Erro na linha: " << nlinha << ". Atribuição inválida!\n";
-				}
-			}
 			| TK_TIPO_BOOL TK_ID
 			{
-				info_variavel atributos = { $1.label, gera_variavel_temporaria($1.label, $2.label) };
+				info_variavel atributos = { $1.traducao, gera_variavel_temporaria($1.traducao, $2.label) };
 
 				$$.traducao = "\n\t" + atributos.nome_temp + " = " + "1" + ";";
 
 			}
 			;
 
-E_REL		: E_REL TK_REL_OP E
+E_REL		: E TK_REL_OP E
 			{
 
 				string nome_variavel_temporaria = gera_variavel_temporaria(mapa_operacoes[$1.tipo+$2.label+$3.tipo].tipo);
@@ -339,24 +301,35 @@ E_TEMP		: E_TEMP TK_ARIT_OP_M UNAL
 				$$.label = $1.label;
 				$$.traducao = $1.traducao;
 			};
+
 UNAL		: TK_SUB VAL
 			{
 				$$.label = $1.label + $2.label;
+				$$.tipo = $2.tipo;
 				$$.traducao = "";
 			}
 			|TK_NOT VAL
 			{
 				$$.label = $1.label + $2.label;
+				$$.tipo = $2.tipo;
 				$$.traducao = "";
 			}
 			|TK_PLUSPLUS VAL
 			{
 				$$.label = $1.label + $2.label;
+				$$.tipo = $2.tipo;
+				$$.traducao = "";
+			}
+			|TK_SUBSUB VAL
+			{
+				$$.label = $1.label + $2.label;
+				$$.tipo = $2.tipo;
 				$$.traducao = "";
 			}
 			| VAL
 			{
 				$$.label = $1.label;
+				$$.tipo = $1.tipo;
 				$$.traducao = $1.traducao;
 			}
 			;
@@ -382,7 +355,7 @@ VAL			: '(' E_REL ')'
 			| TK_ID
 			{
 				if(mapa_variavel.find($1.label) == mapa_variavel.end()) {
-					cout << "Erro na linha " << nlinha <<": Que porra de variável \"" << $1.label << "\" é essa?" << endl << endl;
+					cout << "Erro na linha " << nlinha <<": Variável \"" << $1.label << "\" não declarada." << endl << endl;
 
 					erro = true;
 				}
@@ -393,7 +366,30 @@ VAL			: '(' E_REL ')'
 				
 			}
 			;
+/*
+E_OR		: E_OR TK_OR E_AND
+			{
+				$$.traducao = 
+			}
+			| E_AND
+			{
+				$$.traducao = $1.traducao;
+				$$.tipo = $1.tipo;
+				$$.label = $1.label;
+			}
+			;
 
+E_AND		: E_AND TK_AND E_REL
+			{
+
+			}
+			| E_REL
+			{
+				$$.traducao = $1.traducao;
+				$$.tipo = $1.tipo;
+				$$.label = $1.label;
+			}
+*/
 TK_REL_OP	: TK_MENOR
 			{
 				$$.traducao = $1.traducao;
@@ -480,7 +476,7 @@ string gera_variavel_temporaria(string tipo, string nome) {
 		mapa_variavel[nome_aux] = atributos;
 			
 	} else {
-		cout << "Erro na linha " << nlinha <<": Você já declarou a variável \"" << nome << "\", animal!" << endl << endl;
+		cout << "Erro na linha " << nlinha <<": Você já declarou a variável \"" << nome << "\"." << endl << endl;
 		erro = true;
 	}
 

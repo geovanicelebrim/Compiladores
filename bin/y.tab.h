@@ -68,8 +68,8 @@ extern int yydebug;
     TK_ERROR = 278,
     TK_NOT = 279,
     TK_PLUSPLUS = 280,
-    TK_TIPO_FLOAT = 281,
-    TK_TIPO_DOUBLE = 282,
+    TK_SUBSUB = 281,
+    TK_TIPO_FLOAT = 282,
     TK_TIPO_CHAR = 283,
     TK_TIPO_BOOL = 284,
     TK_LOGICO = 285,
@@ -107,8 +107,8 @@ extern int yydebug;
 #define TK_ERROR 278
 #define TK_NOT 279
 #define TK_PLUSPLUS 280
-#define TK_TIPO_FLOAT 281
-#define TK_TIPO_DOUBLE 282
+#define TK_SUBSUB 281
+#define TK_TIPO_FLOAT 282
 #define TK_TIPO_CHAR 283
 #define TK_TIPO_BOOL 284
 #define TK_LOGICO 285
