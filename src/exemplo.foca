@@ -2,8 +2,9 @@ int main()
 
 begin
 
-	boolan c;
-	c  = (2 > 4) < 3;
+	float k = 3 + 2.0;
+
+	
 
 
 end

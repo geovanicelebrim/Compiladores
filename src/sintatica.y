@@ -113,7 +113,10 @@ S 			: TK_TIPO_INT TK_MAIN'(' ')' TK_BEGIN BLOCO_NO_B
 				string variaveis = "";
 
 				for (std::map<string, info_variavel>::iterator it=mapa_variavel.begin(); it!=mapa_variavel.end(); ++it)
-    				variaveis += "\t" + it->second.tipo + " " + it->second.nome_temp + ";\n";
+    				if(it->second.tipo == "boolean")
+    					variaveis += "\tint " + it->second.nome_temp + ";\n";
+    				else
+    					variaveis += "\t" + it->second.tipo + " " + it->second.nome_temp + ";\n";
 
 				if(!erro) {
 					//cout << "/*Compilador FOCA*/\n" << "#include <iostream>\n#include<string.h>\n#include<stdio.h>\nint main(void)\n{\n" << $5.traducao << "\n\treturn 0;\n}" << endl; 
@@ -165,7 +168,7 @@ ATRIBUICAO  : TK_ID TK_ATR E_REL
 			{
 
 				string tipo = mapa_variavel[$1.label].tipo;
-
+				
 				if(mapa_operacoes[tipo+$2.label+$3.tipo].operando == 1)
 					$$.traducao = "\t" + $3.traducao + "\n\t" + mapa_variavel[$1.label].nome_temp + " = " + "(" + mapa_operacoes[$1.tipo+$2.label+$3.tipo].tipo + ")" + $3.label + ";\n";
 				else if(mapa_operacoes[tipo+$2.label+$3.tipo].operando == 0)
@@ -180,6 +183,10 @@ ATRIBUICAO  : TK_ID TK_ATR E_REL
 					erro = true;
 					cout << "Erro na linha: " << nlinha << ". Atribuição inválida!\n";
 				}
+			}
+			| TK_ID TK_ATR TK_LOGICO
+			{
+				$$.traducao = "\n\t" + mapa_variavel[$1.label].nome_temp + " = " + $3.traducao + ";\n";
 			}
 
 DECLARACAO	: TK_TIPO_INT TK_ID TK_ATR E_REL
@@ -228,7 +235,7 @@ DECLARACAO	: TK_TIPO_INT TK_ID TK_ATR E_REL
 			}
 			| TK_TIPO_BOOL TK_ID
 			{
-				info_variavel atributos = { $1.traducao, gera_variavel_temporaria($1.traducao, $2.label) };
+				info_variavel atributos = { $1.label, gera_variavel_temporaria($1.label, $2.label) };
 
 				$$.traducao = "\n\t" + atributos.nome_temp + " = " + "1" + ";";
 
@@ -241,9 +248,10 @@ E_REL		: E TK_REL_OP E
 				string nome_variavel_temporaria = gera_variavel_temporaria(mapa_operacoes[$1.tipo+$2.label+$3.tipo].tipo);
 				$$.label = nome_variavel_temporaria;
 
+				$$.tipo = mapa_operacoes[$1.tipo+$2.label+$3.tipo].tipo;
 
-				//$$.label = $3.label;
 				$$.traducao = $1.traducao + $3.traducao + "\n\t" + $$.label + " = " +$1.label + " " + $2.label + " " + $3.label + ";\n";
+				
 			}
 			| E
 			{
@@ -261,7 +269,8 @@ E 			: E TK_ARIT_OP_S E_TEMP
 				if(mapa_operacoes[$1.tipo+$2.label+$3.tipo].operando == 0) {
 					$$.traducao = $3.traducao + "\t" + $1.traducao + "\n\t" + nome_variavel_temporaria + " = " + $1.label + " " + $2.label + " " + $3.label + ";";
 				}
-				else if(mapa_operacoes[$1.tipo+$2.label+$3.tipo].operando == 1) {
+				else if(mapa_operacoes[$1.tipo+$2.label+$3.tipo].operando == 1) 
+				{
 					$$.traducao = $3.traducao + "\t" + $1.traducao + "\n\t" + nome_variavel_temporaria + " = " + "(" + mapa_operacoes[$1.tipo+$2.label+$3.tipo].tipo + ")" + $1.label + " " + $2.label + " " + $3.label + ";";
 				} else {
 					$$.traducao = $3.traducao + "\t" + $1.traducao + "\n\t" + nome_variavel_temporaria + " = " + $1.label + " " + $2.label + " " + "(" + mapa_operacoes[$1.tipo+$2.label+$3.tipo].tipo + ")" + $3.label + ";";
@@ -286,9 +295,11 @@ E_TEMP		: E_TEMP TK_ARIT_OP_M UNAL
 
 				
 
-				if(mapa_operacoes[$1.tipo+$2.label+$3.tipo].operando == 0) {
+				if(mapa_operacoes[$1.tipo+$2.label+$3.tipo].operando == 0) 
+				{
 					$$.traducao = $3.traducao + $1.traducao + "\n\t" + nome_variavel_temporaria + " = " + $1.label + " " + $2.label + " " + $3.label + ";";
-				} else if(mapa_operacoes[$1.tipo+$2.label+$3.tipo].operando == 1) {
+				} else if(mapa_operacoes[$1.tipo+$2.label+$3.tipo].operando == 1) 
+				{
 					$$.traducao = $3.traducao + $1.traducao + "\n\t" + nome_variavel_temporaria + " = " + "(" + mapa_operacoes[$1.tipo+$2.label+$3.tipo].tipo + ")" + $1.label + " " + $2.label + " " + $3.label + ";";
 				} else {
 					$$.traducao = $3.traducao + $1.traducao + "\n\t" + nome_variavel_temporaria + " = " + $1.label + " " + $2.label + " " + "(" + mapa_operacoes[$1.tipo+$2.label+$3.tipo].tipo + ")" + $3.label + ";";
@@ -490,11 +501,12 @@ void adiciona_biblioteca_cabecalho(string nome_biblioteca) {
 
 int main( int argc, char* argv[] )
 {
-	
+	mapa_operacoes["boolean=boolean"] = {"boolean", 0};
 //Terminar de fazer a tabela
-	mapa_operacoes["int=float"] = {"null", -1};
+	mapa_operacoes["int=float"] = {"int", 1};
 	mapa_operacoes["int+boolean"] = {"null", -1};
 	mapa_operacoes["int=boolean"] = {"null", -1};
+	mapa_operacoes["boolean=int"] = {"null", -1};
 	//Tratar este caso, pois a representação booleana é com um inteiro
 	//mapa_operacoes["boolean=int"] = {"null", -1};
 
@@ -515,17 +527,20 @@ int main( int argc, char* argv[] )
 	mapa_operacoes["float*float"] = {"float", 0};
 	mapa_operacoes["float/float"] = {"float", 0};
 
+	mapa_operacoes["int=int"] = {"int", 0};
 	mapa_operacoes["int+int"] = {"int", 0};
 	mapa_operacoes["int-int"] = {"int", 0};
 	mapa_operacoes["int*int"] = {"int", 0};
 	mapa_operacoes["int/int"] = {"int", 0};
 
-	mapa_operacoes["int>int"] = {"int", 0};
-	mapa_operacoes["int<int"] = {"int", 0};
-	mapa_operacoes["int>=int"] = {"int", 0};
-	mapa_operacoes["int<=int"] = {"int", 0};
-	mapa_operacoes["int==int"] = {"int", 0};
-	mapa_operacoes["int!=int"] = {"int", 0};
+	
+
+	mapa_operacoes["int>int"] = {"boolean", 0};
+	mapa_operacoes["int<int"] = {"boolean", 0};
+	mapa_operacoes["int>=int"] = {"boolean", 0};
+	mapa_operacoes["int<=int"] = {"boolean", 0};
+	mapa_operacoes["int==int"] = {"boolean", 0};
+	mapa_operacoes["int!=int"] = {"boolean", 0};
 
 	yyparse();
 
