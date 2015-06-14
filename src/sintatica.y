@@ -18,6 +18,7 @@ typedef struct
 	string label;
 	string traducao;
 	string tipo;
+	int tamanho;
 } _atributos;
 
 // Variável que indica se ocorreram erros ao compilar o programa
@@ -82,13 +83,16 @@ stringstream cabecalho;
 %token TK_TIPO_FLOAT
 %token TK_TIPO_CHAR
 %token TK_TIPO_BOOL
-%token TK_LOGICO TK_AND TK_OR
+%token TK_LOGICO 
+%token TK_AND TK_OR
 %token TK_MENOR
 %token TK_MAIOR
 %token TK_MENOR_IGUAL
 %token TK_MAIOR_IGUAL
 %token TK_IGUAL
 %token TK_DIFERENTE
+%token TK_CHAR
+%token TK_ASPASIMPLES
 
 %start S
 
@@ -150,7 +154,7 @@ COMANDO 	: DECLARACAO
 			}
 			;
 
-COMANDO 	: E_REL
+COMANDO 	: E_OR
 			{
 				$$.label = $1.label;
 				$$.traducao = $1.traducao;
@@ -164,7 +168,7 @@ COMANDO 	: ATRIBUICAO
 			}
 			;
 
-ATRIBUICAO  : TK_ID TK_ATR E_REL
+ATRIBUICAO  : TK_ID TK_ATR E_OR
 			{
 
 				string tipo = mapa_variavel[$1.label].tipo;
@@ -188,6 +192,12 @@ ATRIBUICAO  : TK_ID TK_ATR E_REL
 			{
 				$$.traducao = "\n\t" + mapa_variavel[$1.label].nome_temp + " = " + $3.traducao + ";\n";
 			}
+			| TK_ID TK_ATR TK_CHAR
+			{
+				
+				$$.traducao = "\n\t" + mapa_variavel[$1.label].nome_temp + " = " + $3.label + ";\n";
+			}
+			;
 
 DECLARACAO	: TK_TIPO_INT TK_ID TK_ATR E_REL
 			{
@@ -233,6 +243,19 @@ DECLARACAO	: TK_TIPO_INT TK_ID TK_ATR E_REL
 				//$$.tipo = $2.tipo;
 
 			}
+			| TK_TIPO_BOOL TK_ID TK_ATR E_OR
+			{
+				info_variavel atributos = { $1.label, gera_variavel_temporaria($1.label, $2.label)};
+
+				if(mapa_operacoes[$1.label+$3.label+$4.tipo].operando == 1)
+					$$.traducao = "\t" + $4.traducao + "\n\t" + atributos.nome_temp + " = " + "(" + mapa_operacoes[$1.label+$3.label+$4.tipo].tipo + ")" + $4.label + ";";
+				else if(mapa_operacoes[$1.label+$3.label+$4.tipo].operando == 0)
+					$$.traducao = "\t" + $4.traducao + "\n\t" + atributos.nome_temp + " = " + $4.label + ";";
+				else{
+					erro = true;
+					cout << "Erro na linha: " << nlinha << ". Atribuição inválida!\n";
+				}
+			}
 			| TK_TIPO_BOOL TK_ID
 			{
 				info_variavel atributos = { $1.label, gera_variavel_temporaria($1.label, $2.label) };
@@ -240,7 +263,61 @@ DECLARACAO	: TK_TIPO_INT TK_ID TK_ATR E_REL
 				$$.traducao = "\n\t" + atributos.nome_temp + " = " + "1" + ";";
 
 			}
+			| TK_TIPO_CHAR TK_ID TK_ATR TK_CHAR
+			{
+				info_variavel atributos = { $1.label, gera_variavel_temporaria($1.label, $2.label) };
+				
+				if(mapa_operacoes[$1.label+$3.label+$4.tipo].operando == 1)
+					$$.traducao = "\n\t" + atributos.nome_temp + " = " + "(" + mapa_operacoes[$1.label+$3.label+$4.tipo].tipo + ")" + $4.label + ";";
+				else if(mapa_operacoes[$1.label+$3.label+$4.tipo].operando == 0)
+					$$.traducao = "\n\t" + atributos.nome_temp + " = " + $4.label + ";";
+				else{
+					erro = true;
+				}
+			}
+			| TK_TIPO_CHAR TK_ID
+			{
+				info_variavel atributos = { $1.label, gera_variavel_temporaria($1.label, $2.label)};
+
+				$$.traducao = "\n\t" + atributos.nome_temp + " = " + "\'\'" + ";";
+			}
 			;
+
+E_OR		: E_OR TK_OR E_AND
+			{
+			
+				string nome_variavel_temporaria = gera_variavel_temporaria(mapa_operacoes[$1.tipo+$2.label+$3.tipo].tipo);
+				$$.label = nome_variavel_temporaria;
+				$$.tipo = mapa_operacoes[$1.tipo+$2.label+$3.tipo].tipo;
+				$$.traducao = $1.traducao + $3.traducao + "\n\t" + $$.label + " = " +$1.label + " " + $2.traducao + " " + $3.label + ";\n";
+			}
+			| E_AND
+			{
+				$$.label = $1.label;
+				$$.traducao = $1.traducao;
+				$$.tipo = $1.tipo;
+				$$.tamanho = $1.tamanho;
+			}
+			;
+
+E_AND	: 	E_AND TK_AND E_REL
+			{
+				string nome_variavel_temporaria = gera_variavel_temporaria(mapa_operacoes[$1.tipo+$2.label+$3.tipo].tipo);
+				$$.label = nome_variavel_temporaria;
+				$$.tipo = mapa_operacoes[$1.tipo+$2.label+$3.tipo].tipo;
+
+				$$.traducao = $1.traducao + $3.traducao + "\n\t" + $$.label + " = " +$1.label + " " + $2.traducao + " " + $3.label + ";\n";
+			}
+			| E_REL
+			{
+				$$.label = $1.label;
+				$$.traducao = $1.traducao;
+				$$.tipo = $1.tipo;
+				$$.tamanho = $1.tamanho;
+			}
+			;
+
+
 
 E_REL		: E TK_REL_OP E
 			{
@@ -258,6 +335,7 @@ E_REL		: E TK_REL_OP E
 				$$.label = $1.label;
 				$$.traducao = $1.traducao;
 				$$.tipo = $1.tipo;
+				$$.tamanho = $1.tamanho;
 			}
 			;
 
@@ -345,7 +423,7 @@ UNAL		: TK_SUB VAL
 			}
 			;
 
-VAL			: '(' E_REL ')'
+VAL			: '(' E_OR ')'
 			{
 				$$.label = $2.label;
 				$$.traducao = $2.traducao;
@@ -377,30 +455,8 @@ VAL			: '(' E_REL ')'
 				
 			}
 			;
-/*
-E_OR		: E_OR TK_OR E_AND
-			{
-				$$.traducao = 
-			}
-			| E_AND
-			{
-				$$.traducao = $1.traducao;
-				$$.tipo = $1.tipo;
-				$$.label = $1.label;
-			}
-			;
 
-E_AND		: E_AND TK_AND E_REL
-			{
 
-			}
-			| E_REL
-			{
-				$$.traducao = $1.traducao;
-				$$.tipo = $1.tipo;
-				$$.label = $1.label;
-			}
-*/
 TK_REL_OP	: TK_MENOR
 			{
 				$$.traducao = $1.traducao;
@@ -502,15 +558,88 @@ void adiciona_biblioteca_cabecalho(string nome_biblioteca) {
 int main( int argc, char* argv[] )
 {
 	mapa_operacoes["boolean=boolean"] = {"boolean", 0};
-//Terminar de fazer a tabela
-	mapa_operacoes["int=float"] = {"int", 1};
+	mapa_operacoes["char=char"] = {"char", 0};
+	//Terminar de fazer a tabela
+
 	mapa_operacoes["int+boolean"] = {"null", -1};
+	mapa_operacoes["int-boolean"] = {"null", -1};
+	mapa_operacoes["int/boolean"] = {"null", -1};
+	mapa_operacoes["int*boolean"] = {"null", -1};
 	mapa_operacoes["int=boolean"] = {"null", -1};
+	
+	mapa_operacoes["boolean+int"] = {"null", -1};
+	mapa_operacoes["boolean-int"] = {"null", -1};
+	mapa_operacoes["boolean/int"] = {"null", -1};
+	mapa_operacoes["boolean*int"] = {"null", -1};
 	mapa_operacoes["boolean=int"] = {"null", -1};
+	
+	mapa_operacoes["booleanandboolean"] = {"boolean", 0};
+	mapa_operacoes["booleanorboolean"] = {"boolean", 0};
+	
+	//nao sei se tem esses:
+	mapa_operacoes["intandboolean"] = {"null", -1};
+	mapa_operacoes["intorboolean"] = {"null", -1};
+	mapa_operacoes["booleanandint"] = {"null", -1};
+	mapa_operacoes["booleanorint"] = {"null", -1};
+	
+	mapa_operacoes["float+boolean"] = {"null", -1};
+	mapa_operacoes["float-boolean"] = {"null", -1};
+	mapa_operacoes["float/boolean"] = {"null", -1};
+	mapa_operacoes["float*boolean"] = {"null", -1};
+	mapa_operacoes["float=boolean"] = {"null", -1};
+	
+	mapa_operacoes["boolean+float"] = {"null", -1};
+	mapa_operacoes["boolean-float"] = {"null", -1};
+	mapa_operacoes["boolean/float"] = {"null", -1};
+	mapa_operacoes["boolean*float"] = {"null", -1};
+	mapa_operacoes["boolean=float"] = {"null", -1};
+	
+	mapa_operacoes["floatandboolean"] = {"null", -1};
+	mapa_operacoes["floatorboolean"] = {"null", -1};
+	mapa_operacoes["booleanandfloat"] = {"null", -1};
+	mapa_operacoes["booleanorfloat"] = {"null", -1};
+	
+	
+	
+	mapa_operacoes["char+boolean"] = {"null", -1};
+	mapa_operacoes["char-boolean"] = {"null", -1};
+	mapa_operacoes["char/boolean"] = {"null", -1};
+	mapa_operacoes["char*boolean"] = {"null", -1};
+	mapa_operacoes["char=boolean"] = {"null", -1};
+	
+	mapa_operacoes["boolean+char"] = {"null", -1};
+	mapa_operacoes["boolean-char"] = {"null", -1};
+	mapa_operacoes["boolean/char"] = {"null", -1};
+	mapa_operacoes["boolean*char"] = {"null", -1};
+	mapa_operacoes["boolean=char"] = {"null", -1};
+	
+	mapa_operacoes["charandboolean"] = {"null", -1};
+	mapa_operacoes["charorboolean"] = {"null", -1};
+	mapa_operacoes["booleanandchar"] = {"null", -1};
+	mapa_operacoes["booleanorchar"] = {"null", -1};
+	
+	
+	mapa_operacoes["char+int"] = {"null", -1};
+	mapa_operacoes["char-int"] = {"null", -1};
+	mapa_operacoes["char/int"] = {"null", -1};
+	mapa_operacoes["char*int"] = {"null", -1};
+	mapa_operacoes["char=int"] = {"null", -1};
+	
+	mapa_operacoes["int+char"] = {"null", -1};
+	mapa_operacoes["int-char"] = {"null", -1};
+	mapa_operacoes["int/char"] = {"null", -1};
+	mapa_operacoes["int*char"] = {"null", -1};
+	mapa_operacoes["int=char"] = {"null", -1};
+	
+
+	
+	
+	
 	//Tratar este caso, pois a representação booleana é com um inteiro
 	//mapa_operacoes["boolean=int"] = {"null", -1};
 
-
+	mapa_operacoes["int=float"] = {"int", 1};
+	
 	mapa_operacoes["int+float"] = {"float", 1};
 	mapa_operacoes["int-float"]	= {"float", 1};
 	mapa_operacoes["int*float"] = {"float", 1};
@@ -541,7 +670,38 @@ int main( int argc, char* argv[] )
 	mapa_operacoes["int<=int"] = {"boolean", 0};
 	mapa_operacoes["int==int"] = {"boolean", 0};
 	mapa_operacoes["int!=int"] = {"boolean", 0};
+	
+	
+	
+	
+	//tambem nao sei se tem esses
+	mapa_operacoes["int>float"] = {"null", -1};
+	mapa_operacoes["int<float"] = {"null", -1};
+	mapa_operacoes["int>=float"] = {"null", -1};
+	mapa_operacoes["int<=float"] = {"null", -1};
+	mapa_operacoes["int==float"] = {"null", -1};
+	mapa_operacoes["int!=float"] = {"null", -1};
 
+	
+	mapa_operacoes["float<int"] = {"null", -1};
+	mapa_operacoes["float>=int"] = {"null", -1};
+	mapa_operacoes["float<=int"] = {"null", -1};
+	mapa_operacoes["float==int"] = {"null", -1};
+	mapa_operacoes["float!=int"] = {"null", -1};
+
+	mapa_operacoes["int>char"] = {"null", -1};
+	mapa_operacoes["int<char"] = {"null", -1};
+	mapa_operacoes["int>=char"] = {"null", -1};
+	mapa_operacoes["int<=char"] = {"null", -1};
+	mapa_operacoes["int==char"] = {"null", -1};
+	mapa_operacoes["int!=char"] = {"null", -1};
+
+	mapa_operacoes["char<int"] = {"null", -1};
+	mapa_operacoes["char>=int"] = {"null", -1};
+	mapa_operacoes["char<=int"] = {"null", -1};
+	mapa_operacoes["char==int"] = {"null", -1};
+	mapa_operacoes["char!=int"] = {"null", -1};
+	
 	yyparse();
 
 	return 0;

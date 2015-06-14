@@ -2,9 +2,6 @@ int main()
 
 begin
 
-	float k = 3 + 2.0;
-
-	
-
-
+	char d;
+	d = 'a';
 end

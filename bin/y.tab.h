@@ -80,7 +80,9 @@ extern int yydebug;
     TK_MENOR_IGUAL = 290,
     TK_MAIOR_IGUAL = 291,
     TK_IGUAL = 292,
-    TK_DIFERENTE = 293
+    TK_DIFERENTE = 293,
+    TK_CHAR = 294,
+    TK_ASPASIMPLES = 295
   };
 #endif
 /* Tokens.  */
@@ -120,6 +122,8 @@ extern int yydebug;
 #define TK_MAIOR_IGUAL 291
 #define TK_IGUAL 292
 #define TK_DIFERENTE 293
+#define TK_CHAR 294
+#define TK_ASPASIMPLES 295
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED

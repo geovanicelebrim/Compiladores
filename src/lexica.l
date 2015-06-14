@@ -161,6 +161,16 @@ ID {LETRA}({LETRA}|{NUM})*
 				return TK_DIFERENTE;
 			}
 
+"and"		{
+				yylval.traducao = "&&";
+				yylval.label = yytext;
+				return TK_AND;
+			}
+"or"		{
+				yylval.traducao = "|";
+				yylval.label = yytext;
+				return TK_OR;
+			}
 {NUM}		{	
 				yylval.traducao = yytext;
 				yylval.label = yytext;
@@ -174,6 +184,13 @@ ID {LETRA}({LETRA}|{NUM})*
 				yylval.tipo = "float";
 				return TK_REAL;
 			}
+			
+{CHAR}		{	
+				yylval.traducao = yytext;
+				yylval.label = yytext;
+				yylval.tipo = "char";
+				return TK_CHAR;
+			}			
 
 "true"		{	
 				yylval.traducao = "1";
