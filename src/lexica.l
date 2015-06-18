@@ -25,6 +25,7 @@ ID {LETRA}({LETRA}|{NUM})*
 
 "#".*\n 	{}
 
+
 "="			{
 				yylval.label = yytext;
 				return TK_ATR;
