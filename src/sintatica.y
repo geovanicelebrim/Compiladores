@@ -60,6 +60,8 @@ string gera_variavel_temporaria(string tipo, string nome="");
 
 void adiciona_biblioteca_cabecalho(string nome_biblioteca);
 
+void gera_mapa_cast();
+
 stringstream cabecalho;
 
 %}
@@ -621,244 +623,34 @@ string gera_variavel_temporaria(string tipo, string nome) {
 	return nome_temporario.str();
 }
 
+void gera_mapa_cast() {
+	FILE* file2 = fopen("./src/mapa_cast.txt", "r");
+	
+	char chave[30] = "";
+	
+	char resultado[20] = "";
+	int operando;
+	
+	while(fscanf(file2, "%s\t%s\t%d\n", chave, resultado, &operando)) {
+		
+		info_operacoes cast = {resultado, operando};
+		mapa_operacoes[chave] = cast;
+		
+		if(feof(file2)) {
+			break;
+		}
+	}
+	
+	fclose(file2);
+}
+
 void adiciona_biblioteca_cabecalho(string nome_biblioteca) {
 	cabecalho << "#include <" << nome_biblioteca << ">" << endl;
 }
 
 int main( int argc, char* argv[] )
 {
-	mapa_operacoes["boolean=boolean"] = {"boolean", 0};
-	mapa_operacoes["char=char"] = {"char", 0};
-	
-	
-	//cast explícito
-	mapa_operacoes["(int)float"] = {"int", 0};
-	mapa_operacoes["(int)int"] = {"int", 0};
-	mapa_operacoes["(int)char"] = {"int", 0};
-	mapa_operacoes["(int)boolean"] = {"null", -1};
-	
-	mapa_operacoes["(float)int"] = {"float", 0};
-	mapa_operacoes["(float)char"] = {"null", -1};
-	mapa_operacoes["(float)float"] = {"float", 0};
-	mapa_operacoes["(float)boolean"] = {"null", -1};
-	
-	mapa_operacoes["(char)int"] = {"char", 0};
-	mapa_operacoes["(char)float"] = {"null", -1};
-	mapa_operacoes["(char)char"] = {"char", 0};
-	mapa_operacoes["(char)boolean"] = {"null", -1};
-	
-	mapa_operacoes["(boolean)float"] = {"null", -1};
-	mapa_operacoes["(boolean)int"] = {"null", -1};
-	mapa_operacoes["(boolean)char"] = {"null", -1};
-	mapa_operacoes["(boolean)boolean"] = {"boolean", 0};
-	
-	
-	
-	
-	//Todas as operações entre int e char
-	mapa_operacoes["int+char"] = {"int", 2};
-	mapa_operacoes["int-char"] = {"int", 2};
-	mapa_operacoes["int/char"] = {"int", 2};
-	mapa_operacoes["int*char"] = {"int", 2};
-	mapa_operacoes["int=char"] = {"int", 2};
-	mapa_operacoes["int==char"] = {"int", 2};
-	mapa_operacoes["int!=char"] = {"int", 2};
-	mapa_operacoes["int>char"] = {"int", 2};
-	mapa_operacoes["int<char"] = {"int", 2};
-	mapa_operacoes["int>=char"] = {"int", 2};
-	mapa_operacoes["int<=char"] = {"int", 2};
-	
-	//Todas as operações entre char e int
-	mapa_operacoes["char+int"] = {"int", 2};
-	mapa_operacoes["char-int"] = {"int", 2};
-	mapa_operacoes["char/int"] = {"int", 2};
-	mapa_operacoes["char*int"] = {"int", 2};
-	mapa_operacoes["char=int"] = {"int", 2};
-	mapa_operacoes["char==int"] = {"int", 2};
-	mapa_operacoes["char!=int"] = {"int", 2};
-	mapa_operacoes["char>int"] = {"int", 2};
-	mapa_operacoes["char<int"] = {"int", 2};
-	mapa_operacoes["char>=int"] = {"int", 2};
-	mapa_operacoes["char<=int"] = {"int", 2};
-	
-	//Todas as operações entre char e float
-	
-	mapa_operacoes["char+float"] = {"null", -1};
-	mapa_operacoes["char-float"] = {"null", -1};
-	mapa_operacoes["char/float"] = {"null", -1};
-	mapa_operacoes["char*float"] = {"null", -1};
-	mapa_operacoes["char=float"] = {"null", -1};
-	mapa_operacoes["char==float"] = {"null", -1};
-	mapa_operacoes["char!=float"] = {"null", -1};
-	mapa_operacoes["char>float"] = {"null", -1};
-	mapa_operacoes["char<float"] = {"null", -1};
-	mapa_operacoes["char>=float"] = {"null", -1};
-	mapa_operacoes["char<=float"] = {"null", -1};
-	
-	//Todas as operações entre float e char
-	
-	mapa_operacoes["float+char"] = {"null", -1};
-	mapa_operacoes["float-char"] = {"null", -1};
-	mapa_operacoes["float/char"] = {"null", -1};
-	mapa_operacoes["float*char"] = {"null", -1};
-	mapa_operacoes["float=char"] = {"null", -1};
-	mapa_operacoes["float==char"] = {"null", -1};
-	mapa_operacoes["float!=char"] = {"null", -1};
-	mapa_operacoes["float>char"] = {"null", -1};
-	mapa_operacoes["float<char"] = {"null", -1};
-	mapa_operacoes["float>=char"] = {"null", -1};
-	mapa_operacoes["float<=char"] = {"null", -1};
-	
-	
-	//Todas as operações entre char e char
-	// Definir que o cast de valor = 3 é um cast (int) para ambos os caracteres
-	
-	mapa_operacoes["char+char"] = {"int", 3};
-	mapa_operacoes["char-char"] = {"int", 3};
-	mapa_operacoes["char/char"] = {"int", 3};
-	mapa_operacoes["char*char"] = {"int", 3};
-	mapa_operacoes["char=char"] = {"char", 0};
-	mapa_operacoes["char==char"] = {"boolean", 0};
-	mapa_operacoes["char!=char"] = {"boolean", 0};
-	mapa_operacoes["char>char"] = {"boolean", 0};
-	mapa_operacoes["char<char"] = {"boolean", 0};
-	mapa_operacoes["char>=char"] = {"boolean", 0};
-	mapa_operacoes["char<=char"] = {"boolean", 0};
-	
-	//Todas operações entre int e boolean
-	mapa_operacoes["int+boolean"] = {"null", -1};
-	mapa_operacoes["int-boolean"] = {"null", -1};
-	mapa_operacoes["int/boolean"] = {"null", -1};
-	mapa_operacoes["int*boolean"] = {"null", -1};
-	mapa_operacoes["int=boolean"] = {"null", -1};
-	mapa_operacoes["int==boolean"] = {"null", -1};
-	mapa_operacoes["int!=boolean"] = {"null", -1};
-	mapa_operacoes["int>boolean"] = {"null", -1};
-	mapa_operacoes["int<boolean"] = {"null", -1};
-	mapa_operacoes["int>=boolean"] = {"null", -1};
-	mapa_operacoes["int<=boolean"] = {"null", -1};
-	mapa_operacoes["intandboolean"] = {"null", -1};
-	mapa_operacoes["intorboolean"] = {"null", -1};
-	
-	mapa_operacoes["int=float"] = {"int", 1};
-	mapa_operacoes["int+float"] = {"float", 1};
-	mapa_operacoes["int-float"]	= {"float", 1};
-	mapa_operacoes["int*float"] = {"float", 1};
-	mapa_operacoes["int/float"] = {"float", 1};
-	mapa_operacoes["int>int"] = {"boolean", 0};
-	mapa_operacoes["int<int"] = {"boolean", 0};
-	mapa_operacoes["int>=int"] = {"boolean", 0};
-	mapa_operacoes["int<=int"] = {"boolean", 0};
-	mapa_operacoes["int==int"] = {"boolean", 0};
-	mapa_operacoes["int!=int"] = {"boolean", 0};
-	mapa_operacoes["int>float"] = {"null", -1};
-	mapa_operacoes["int<float"] = {"null", -1};
-	mapa_operacoes["int>=float"] = {"null", -1};
-	mapa_operacoes["int<=float"] = {"null", -1};
-	mapa_operacoes["int==float"] = {"null", -1};
-	mapa_operacoes["int!=float"] = {"null", -1};
-
-	
-	mapa_operacoes["boolean+int"] = {"null", -1};
-	mapa_operacoes["boolean-int"] = {"null", -1};
-	mapa_operacoes["boolean/int"] = {"null", -1};
-	mapa_operacoes["boolean*int"] = {"null", -1};
-	mapa_operacoes["boolean=int"] = {"null", -1};
-	
-	mapa_operacoes["booleanandboolean"] = {"boolean", 0};
-	mapa_operacoes["booleanorboolean"] = {"boolean", 0};
-	
-	//nao sei se tem esses:
-	
-	mapa_operacoes["booleanandint"] = {"null", -1};
-	mapa_operacoes["booleanorint"] = {"null", -1};
-	
-	mapa_operacoes["float+boolean"] = {"null", -1};
-	mapa_operacoes["float-boolean"] = {"null", -1};
-	mapa_operacoes["float/boolean"] = {"null", -1};
-	mapa_operacoes["float*boolean"] = {"null", -1};
-	mapa_operacoes["float=boolean"] = {"null", -1};
-	
-	mapa_operacoes["boolean+float"] = {"null", -1};
-	mapa_operacoes["boolean-float"] = {"null", -1};
-	mapa_operacoes["boolean/float"] = {"null", -1};
-	mapa_operacoes["boolean*float"] = {"null", -1};
-	mapa_operacoes["boolean=float"] = {"null", -1};
-	
-	mapa_operacoes["floatandboolean"] = {"null", -1};
-	mapa_operacoes["floatorboolean"] = {"null", -1};
-	mapa_operacoes["booleanandfloat"] = {"null", -1};
-	mapa_operacoes["booleanorfloat"] = {"null", -1};
-	
-	
-	
-	mapa_operacoes["char+boolean"] = {"null", -1};
-	mapa_operacoes["char-boolean"] = {"null", -1};
-	mapa_operacoes["char/boolean"] = {"null", -1};
-	mapa_operacoes["char*boolean"] = {"null", -1};
-	mapa_operacoes["char=boolean"] = {"null", -1};
-	
-	mapa_operacoes["boolean+char"] = {"null", -1};
-	mapa_operacoes["boolean-char"] = {"null", -1};
-	mapa_operacoes["boolean/char"] = {"null", -1};
-	mapa_operacoes["boolean*char"] = {"null", -1};
-	mapa_operacoes["boolean=char"] = {"null", -1};
-	
-	mapa_operacoes["charandboolean"] = {"null", -1};
-	mapa_operacoes["charorboolean"] = {"null", -1};
-	mapa_operacoes["booleanandchar"] = {"null", -1};
-	mapa_operacoes["booleanorchar"] = {"null", -1};
-	
-	
-
-	
-	
-	
-
-	
-	
-	
-	//Tratar este caso, pois a representação booleana é com um inteiro
-	//mapa_operacoes["boolean=int"] = {"null", -1};
-
-	
-	mapa_operacoes["float=int"] = {"float", 1};
-	mapa_operacoes["float*int"] = {"float", 2};
-	mapa_operacoes["float-int"] = {"float", 2};
-	mapa_operacoes["float+int"] = {"float", 2};
-	mapa_operacoes["float/int"] = {"float", 2};
-
-	mapa_operacoes["float=float"] = {"float", 0};
-	mapa_operacoes["float+float"] = {"float", 0};
-	mapa_operacoes["float-float"] = {"float", 0};
-	mapa_operacoes["float*float"] = {"float", 0};
-	mapa_operacoes["float/float"] = {"float", 0};
-
-	mapa_operacoes["int=int"] = {"int", 0};
-	mapa_operacoes["int+int"] = {"int", 0};
-	mapa_operacoes["int-int"] = {"int", 0};
-	mapa_operacoes["int*int"] = {"int", 0};
-	mapa_operacoes["int/int"] = {"int", 0};
-
-	
-
-	
-
-	
-	mapa_operacoes["float<int"] = {"null", -1};
-	mapa_operacoes["float>=int"] = {"null", -1};
-	mapa_operacoes["float<=int"] = {"null", -1};
-	mapa_operacoes["float==int"] = {"null", -1};
-	mapa_operacoes["float!=int"] = {"null", -1};
-
-	
-
-	mapa_operacoes["char<int"] = {"null", -1};
-	mapa_operacoes["char>=int"] = {"null", -1};
-	mapa_operacoes["char<=int"] = {"null", -1};
-	mapa_operacoes["char==int"] = {"null", -1};
-	mapa_operacoes["char!=int"] = {"null", -1};
-	
+	gera_mapa_cast();
 	yyparse();
 
 	return 0;

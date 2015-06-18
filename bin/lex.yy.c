@@ -831,7 +831,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 28 "src/lexica.l"
+#line 29 "src/lexica.l"
 {
 				yylval.label = yytext;
 				return TK_ATR;
@@ -839,7 +839,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 33 "src/lexica.l"
+#line 34 "src/lexica.l"
 {
 				yylval.traducao = yytext;
 				yylval.label = yytext;
@@ -849,7 +849,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 40 "src/lexica.l"
+#line 41 "src/lexica.l"
 {
 				yylval.traducao = "{\n";
 				yylval.label = yytext;
@@ -859,7 +859,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 47 "src/lexica.l"
+#line 48 "src/lexica.l"
 {
 				yylval.traducao = "\n}\n";
 				yylval.label = yytext;
@@ -869,27 +869,27 @@ YY_RULE_SETUP
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 54 "src/lexica.l"
+#line 55 "src/lexica.l"
 {}
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 56 "src/lexica.l"
+#line 57 "src/lexica.l"
 {return TK_MAIN;}
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 58 "src/lexica.l"
+#line 59 "src/lexica.l"
 {return TK_PROCEDURE;}
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 60 "src/lexica.l"
+#line 61 "src/lexica.l"
 {return TK_FUNCTION;}
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 63 "src/lexica.l"
+#line 64 "src/lexica.l"
 {
 				yylval.label = yytext;
 				return TK_TIPO_INT;
@@ -897,7 +897,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 68 "src/lexica.l"
+#line 69 "src/lexica.l"
 {
 				yylval.label = yytext;
 				return TK_TIPO_FLOAT;
@@ -905,7 +905,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 73 "src/lexica.l"
+#line 74 "src/lexica.l"
 {
 				yylval.label = yytext;
 				return TK_TIPO_CHAR;
@@ -913,7 +913,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 78 "src/lexica.l"
+#line 79 "src/lexica.l"
 {
 				yylval.traducao = "int";
 				yylval.label = yytext;
@@ -922,12 +922,12 @@ YY_RULE_SETUP
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 84 "src/lexica.l"
+#line 85 "src/lexica.l"
 { return *yytext; }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 86 "src/lexica.l"
+#line 87 "src/lexica.l"
 {
 				yylval.traducao = yytext;
 				yylval.label = yytext;
@@ -936,7 +936,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 92 "src/lexica.l"
+#line 93 "src/lexica.l"
 {
 				yylval.traducao = yytext;
 				yylval.label = yytext;
@@ -945,7 +945,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 98 "src/lexica.l"
+#line 99 "src/lexica.l"
 {
 				yylval.traducao = yytext;
 				yylval.label = yytext;
@@ -954,7 +954,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 104 "src/lexica.l"
+#line 105 "src/lexica.l"
 {
 				yylval.traducao = yytext;
 				yylval.label = yytext;
@@ -963,7 +963,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 110 "src/lexica.l"
+#line 111 "src/lexica.l"
 {
 				yylval.traducao = yytext;
 				yylval.label = yytext;
@@ -972,7 +972,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 116 "src/lexica.l"
+#line 117 "src/lexica.l"
 {
 				yylval.traducao = yytext;
 				yylval.label = yytext;
@@ -981,7 +981,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 122 "src/lexica.l"
+#line 123 "src/lexica.l"
 {
 				yylval.traducao = yytext;
 				yylval.label = yytext;
@@ -990,7 +990,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 128 "src/lexica.l"
+#line 129 "src/lexica.l"
 {
 				yylval.traducao = yytext;
 				yylval.label = yytext;
@@ -999,7 +999,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 134 "src/lexica.l"
+#line 135 "src/lexica.l"
 {
 				yylval.traducao = yytext;
 				yylval.label = yytext;
@@ -1008,7 +1008,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 140 "src/lexica.l"
+#line 141 "src/lexica.l"
 {
 				yylval.traducao = yytext;
 				yylval.label = yytext;
@@ -1017,7 +1017,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 146 "src/lexica.l"
+#line 147 "src/lexica.l"
 {
 				yylval.traducao = yytext;
 				yylval.label = yytext;
@@ -1026,7 +1026,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 152 "src/lexica.l"
+#line 153 "src/lexica.l"
 {
 				yylval.traducao = yytext;
 				yylval.label = yytext;
@@ -1035,7 +1035,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 158 "src/lexica.l"
+#line 159 "src/lexica.l"
 {
 				yylval.traducao = yytext;
 				yylval.label = yytext;
@@ -1044,7 +1044,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 164 "src/lexica.l"
+#line 165 "src/lexica.l"
 {
 				yylval.traducao = "&&";
 				yylval.label = yytext;
@@ -1053,7 +1053,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 169 "src/lexica.l"
+#line 170 "src/lexica.l"
 {
 				yylval.traducao = "|";
 				yylval.label = yytext;
@@ -1062,7 +1062,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 174 "src/lexica.l"
+#line 175 "src/lexica.l"
 {	
 				yylval.traducao = yytext;
 				yylval.label = yytext;
@@ -1072,7 +1072,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 181 "src/lexica.l"
+#line 182 "src/lexica.l"
 {	
 				yylval.traducao = yytext;
 				yylval.label = yytext;
@@ -1082,7 +1082,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 188 "src/lexica.l"
+#line 189 "src/lexica.l"
 {	
 				yylval.traducao = yytext;
 				yylval.label = yytext;
@@ -1092,7 +1092,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 195 "src/lexica.l"
+#line 196 "src/lexica.l"
 {	
 				yylval.traducao = "1";
 				yylval.label = yytext;
@@ -1102,7 +1102,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 202 "src/lexica.l"
+#line 203 "src/lexica.l"
 {	
 				yylval.traducao = "0";
 				yylval.label = yytext;
@@ -1112,17 +1112,17 @@ YY_RULE_SETUP
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 209 "src/lexica.l"
+#line 210 "src/lexica.l"
 { yylval.label = yytext; return TK_ID; }
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 210 "src/lexica.l"
+#line 211 "src/lexica.l"
 { *yytext; }
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 212 "src/lexica.l"
+#line 213 "src/lexica.l"
 ECHO;
 	YY_BREAK
 #line 1129 "bin/lex.yy.c"
@@ -2123,7 +2123,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 212 "src/lexica.l"
+#line 213 "src/lexica.l"
 
 
 
