@@ -15,6 +15,7 @@ DELIM {ESPACO}+
 NUM {DIGITO}+
 REAL {NUM}+("."{NUM}+)?
 CHAR \'({LETRA}|{NUM})\'
+STRING "\"".*"\""
 ID {LETRA}({LETRA}|{NUM})*
 
 %%
@@ -80,6 +81,12 @@ ID {LETRA}({LETRA}|{NUM})*
 				yylval.traducao = "int";
 				yylval.label = yytext;
 				return TK_TIPO_BOOL;
+			}
+
+"string"	{
+				yylval.traducao = "char";
+				yylval.label = yytext;
+				return TK_TIPO_STRING;
 			}
 
 [(){}[\];,]	{ return *yytext; }
@@ -191,6 +198,13 @@ ID {LETRA}({LETRA}|{NUM})*
 				yylval.label = yytext;
 				yylval.tipo = "char";
 				return TK_CHAR;
+			}			
+
+{STRING}	{	
+				yylval.traducao = yytext;
+				yylval.label = yytext;
+				yylval.tipo = "string";
+				return TK_STRING;
 			}			
 
 "true"		{	

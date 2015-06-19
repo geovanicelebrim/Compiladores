@@ -164,3 +164,5 @@ char>=int	null	-1
 char<=int	null	-1
 char==int	null	-1
 char!=int	null	-1
+string=string	string	0
+string+string	string	0

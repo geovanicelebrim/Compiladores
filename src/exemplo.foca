@@ -2,8 +2,5 @@ int main()
 
 begin
 
-	char a = 'a';
-	char b = 'b';
-	boolean c = a > b;
-	
+	string a ;
 end
