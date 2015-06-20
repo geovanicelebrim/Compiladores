@@ -2,5 +2,10 @@ int main()
 
 begin
 
-	string a ;
+	string a = "Ola ";
+	string b = "mundo!";
+	string c;
+
+	c = a + b;
+	
 end

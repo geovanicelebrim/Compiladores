@@ -108,6 +108,8 @@ boolean*int	null	-1
 boolean=int	null	-1
 booleanandboolean	boolean	0
 booleanorboolean	boolean	0
+boolean==boolean	boolean	0
+boolean!=boolean	boolean	0
 booleanandint	null	-1
 booleanorint	null	-1
 float+boolean	null	-1

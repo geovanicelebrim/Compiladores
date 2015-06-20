@@ -15,7 +15,10 @@ DELIM {ESPACO}+
 NUM {DIGITO}+
 REAL {NUM}+("."{NUM}+)?
 CHAR \'({LETRA}|{NUM})\'
-STRING "\"".*"\""
+
+
+STRING {LETRA}?\"(\\.|[^\\"])*\"|{LETRA}?\'(\\.|[^\\'])*\'
+
 ID {LETRA}({LETRA}|{NUM})*
 
 %%
@@ -57,7 +60,6 @@ ID {LETRA}({LETRA}|{NUM})*
 
 "main"		{return TK_MAIN;}
 
-"procedure"		{return TK_PROCEDURE;}
 
 "function"		{return TK_FUNCTION;}
 
@@ -204,6 +206,7 @@ ID {LETRA}({LETRA}|{NUM})*
 				yylval.traducao = yytext;
 				yylval.label = yytext;
 				yylval.tipo = "string";
+				yylval.tamanho = ((string)yytext).size() - 2;
 				return TK_STRING;
 			}			
 
