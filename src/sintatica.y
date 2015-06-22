@@ -21,46 +21,34 @@ typedef struct
 	int tamanho;
 } _atributos;
 
-// Variável que indica se ocorreram erros ao compilar o programa
-
 bool erro = false;
-
 int yylex(void);
 void yyerror(string);
 
 // Estrutura de informações de uma variável
-
 typedef struct _info_variavel
 {
 	string tipo;
 	string nome_temp;
 	int tamanho;
-
 } info_variavel;
 
 // Estrutura de operações
-
 typedef struct _info_operacoes
 {
 	string tipo;
 	int operando;
-
 } info_operacoes;
 
 // Mapa de variáveis
-
 map<string, info_variavel> mapa_variaveis = map<string, info_variavel>();
 
 // Mapa de operações
-
 map<string, info_operacoes> mapa_operacoes = map<string, info_operacoes>();
 
 // Função para gerar nomes temporários para as variáveis
-
 string gera_variavel_temporaria(string tipo, string nome="", int tamanho=0);
-
 void adiciona_biblioteca_cabecalho(string nome_biblioteca);
-
 void gera_mapa_cast();
 
 stringstream cabecalho;
@@ -79,7 +67,6 @@ stringstream cabecalho;
 %left TK_MUL TK_DIV
 
 %%
-
 S 			: TK_TIPO_INT TK_MAIN '(' ')' BLOCO_NO_B
 			{
 				//ofstream myfile;
