@@ -43,7 +43,7 @@ ID {LETRA}({LETRA}|{NUM})*
 			}
 
 "begin"		{
-				yylval.traducao = "{\n";
+				yylval.traducao = "\n{\n";
 				yylval.label = yytext;
 
 				return TK_BEGIN;

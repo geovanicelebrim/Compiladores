@@ -866,7 +866,7 @@ case 5:
 YY_RULE_SETUP
 #line 45 "src/lexica.l"
 {
-				yylval.traducao = "{\n";
+				yylval.traducao = "\n{\n";
 				yylval.label = yytext;
 
 				return TK_BEGIN;
