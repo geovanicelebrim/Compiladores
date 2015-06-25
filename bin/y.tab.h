@@ -76,7 +76,8 @@ extern int yydebug;
     TK_TIPO_CHAR = 286,
     TK_TIPO_BOOL = 287,
     TK_CONST = 288,
-    TK_FUNCTION = 289
+    TK_FUNCTION = 289,
+    TK_WHILE = 290
   };
 #endif
 /* Tokens.  */
@@ -112,6 +113,7 @@ extern int yydebug;
 #define TK_TIPO_BOOL 287
 #define TK_CONST 288
 #define TK_FUNCTION 289
+#define TK_WHILE 290
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED

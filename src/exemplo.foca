@@ -4,14 +4,13 @@ begin
 
 	int a = 0;
 
+	while(true)
 	begin
 		
-		int a = a;
-		
+		while(true)
 		begin
-		
-			int b = a;
-	
-		end
-	end
+			a = 50;
+		end;
+		a = 5;
+	end;
 end

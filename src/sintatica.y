@@ -5,6 +5,7 @@
 #include <sstream>
 #include <map>
 #include <vector>
+#include <stack>
 
 #define YYSTYPE _atributos
 
@@ -44,15 +45,18 @@ typedef struct _info_operacoes
 
 // Mapa de variáveis
 map<string, info_variavel> mapa_variaveis = map<string, info_variavel>();
+map<string, string> mapa_variaveis_declaracao = map<string, string>();
+
 vector< map<string, info_variavel> > pilha_variaveis = vector< map<string, info_variavel> >();
 // Mapa de operações
 map<string, info_operacoes> mapa_operacoes = map<string, info_operacoes>();
-
+stack<string> pilha_labels = stack<string>();
 // Função para gerar nomes temporários para as variáveis
 string gera_variavel_temporaria(string tipo, string nome="", int tamanho=0);
 void adiciona_biblioteca_cabecalho(string nome_biblioteca);
 void gera_mapa_cast();
 info_variavel buscaID(string id);
+string geraLabel();
 
 stringstream cabecalho;
 
@@ -63,6 +67,7 @@ stringstream cabecalho;
 %token TK_ATR TK_SOMA TK_SUB TK_MUL TK_DIV TK_LOGICO TK_AND TK_OR TK_MENOR TK_MAIOR TK_MENOR_IGUAL TK_MAIOR_IGUAL TK_IGUAL TK_DIFERENTE TK_NOT TK_PLUSPLUS TK_SUBSUB
 %token TK_TIPO_INT TK_TIPO_STRING TK_TIPO_FLOAT TK_TIPO_CHAR TK_TIPO_BOOL TK_CONST
 %token TK_FUNCTION
+%token TK_WHILE
 
 %start S
 
@@ -80,12 +85,14 @@ S           : TK_TIPO_INT TK_MAIN '(' ')' BLOCO
                 //cout << contador << "\n";
 
                 //cout << $5.traducao << "\n\n";
-
+                stringstream variaveis;
+                for (std::map<string, string>::iterator it=mapa_variaveis_declaracao.begin(); it!=mapa_variaveis_declaracao.end(); ++it)
+                        variaveis << it->second;
                 adiciona_biblioteca_cabecalho("stdio.h");
                 adiciona_biblioteca_cabecalho("string.h");
                 if(!erro) {
                     //cout << "/*Compilador FOCA*/\n" << "#include <iostream>\n#include<string.h>\n#include<stdio.h>\nint main(void)\n{\n" << $5.traducao << "\n\treturn 0;\n}" << endl; 
-                    cout << cabecalho.str() << "\nint main(void)\n" << $5.traducao << "\n\n\t" << endl; 
+                    cout << cabecalho.str() << "\nint main(void)\n{\n" << variaveis.str() << $5.traducao << "\n}\n\t" << endl; 
                 } 
                 //myfile.close();
             }
@@ -93,18 +100,26 @@ S           : TK_TIPO_INT TK_MAIN '(' ')' BLOCO
 
 BLOCO   : BEGIN COMANDOS END
             {
-                stringstream variaveis;
-                variaveis << "";
+                
                 int i;
-                for (std::map<string, info_variavel>::iterator it=pilha_variaveis[nivel].begin(); it!=pilha_variaveis[nivel].end(); ++it)
+                for(i = 0; i < pilha_variaveis.size(); i++)
+                for (std::map<string, info_variavel>::iterator it=pilha_variaveis[i].begin(); it!=pilha_variaveis[i].end(); ++it)
+                {
+                    stringstream variaveis;
                     if(it->second.tipo == "boolean")
                         variaveis << "\tint " << it->second.nome_temp << ";\n";
                     else if(it->second.tipo == "string")
                         variaveis << "\tchar " << it->second.nome_temp << "[" << it->second.tamanho << "];\n";
-                    else
+                    else if(it->second.tipo != "")
                         variaveis << "\t" << it->second.tipo << " " << it->second.nome_temp << ";\n";
+                    if(mapa_variaveis_declaracao.find(variaveis.str()) == mapa_variaveis_declaracao.end())
+                    {
+                        mapa_variaveis_declaracao[variaveis.str()] = variaveis.str();
+                    }
+                }
 
-                $$.traducao = $1.traducao + variaveis.str() + $2.traducao + $3.traducao;
+                
+                $$.traducao = $1.traducao + $2.traducao + $3.traducao;
                 nivel--;
                 pilha_variaveis.pop_back();
             };
@@ -146,6 +161,52 @@ COMANDO     : E_OR
                 $$.traducao = $1.traducao;
             }
             ;
+
+//----------------------------------------------------------------------------
+
+COMANDO     : LOOP
+            {
+                $$.label = $1.label;
+                $$.traducao = $1.traducao;
+            }
+            ;
+
+
+LOOP        :WHILE BLOCO
+            {
+
+                $$.traducao = "\n\n" + $1.traducao + $2.traducao + "\n\tgoto " + pilha_labels.top() + ";\n";
+                pilha_labels.pop();
+                $$.traducao += "\n" + pilha_labels.top() + ":\n";
+                pilha_labels.pop();
+            };
+
+WHILE       : W '(' E_OR ')'
+            {
+                if($3.tipo != "boolean")
+                {
+                    erro = true;
+                    cout << "Erro na linha: " << nlinha << ". Operação inválida!\n";
+                }
+
+                
+                string a = geraLabel();
+                string b = geraLabel();
+                pilha_labels.push(a); pilha_labels.push(b); pilha_labels.push(a); pilha_labels.push(b);
+                
+                $$.traducao = "\n" + pilha_labels.top() + ":\n\t" + $3.traducao + "\t";
+                pilha_labels.pop();
+                $$.traducao += $3.label + " = !" + $3.label + ";\n\tif(" + $3.label + ") goto " + pilha_labels.top() + ";\n"; 
+                pilha_labels.pop();
+
+            };
+W           : TK_WHILE
+            {
+                nivel++;
+                pilha_variaveis.push_back(mapa_variaveis);
+            };
+//----------------------------------------------------------------------------
+
 COMANDO     : ATRIBUICAO
             {
                 $$.label = $1.label;
@@ -162,13 +223,12 @@ ATRIBUICAO  : TK_ID TK_ATR E_OR
                 }
                 else    
                 {
-
                     string tipo = pilha_variaveis[nivel][$1.label].tipo;
 
                     if(mapa_operacoes[tipo+$2.label+$3.tipo].operando == 1)
-                        $$.traducao = "\t" + $3.traducao + "\n\t" + pilha_variaveis[nivel][$1.label].nome_temp + " = " + "(" + mapa_operacoes[tipo+$2.label+$3.tipo].tipo + ")" + $3.label + ";\n";
+                        $$.traducao = "\t" + $3.traducao + "\n\t" + buscaID($1.label).nome_temp + " = " + "(" + mapa_operacoes[tipo+$2.label+$3.tipo].tipo + ")" + $3.label + ";\n";
                     else if(mapa_operacoes[tipo+$2.label+$3.tipo].operando == 0)
-                        $$.traducao = "\t" + $3.traducao + "\n\t" + pilha_variaveis[nivel][$1.label].nome_temp + " = " + $3.label + ";\n";
+                        $$.traducao = "\t" + $3.traducao + "\n\t" + buscaID($1.label).nome_temp + " = " + $3.label + ";\n";
                     else{
                         erro = true;
                         cout << "Erro na linha: " << nlinha << ". Atribuição inválida!\n";
@@ -510,6 +570,13 @@ VAL         : '(' E_CAST ')' VAL
                 $$.tipo = $1.tipo;
                 $$.traducao ="\n\t" + nome_variavel_temporaria + " = " + $1.label + ";";
             }
+            | TK_LOGICO
+            {   
+                string nome_variavel_temporaria = gera_variavel_temporaria($1.tipo);
+                $$.label = nome_variavel_temporaria;
+                $$.tipo = $1.tipo;
+                $$.traducao ="\n\t" + nome_variavel_temporaria + " = " + $1.traducao + ";\n";
+            }
             | TK_STRING
             {   
                 //Verificar----------------------------------------------------------------------------
@@ -530,6 +597,7 @@ VAL         : '(' E_CAST ')' VAL
                 }
                 */
                 info_variavel var = buscaID($1.label);
+                cout << "Encontrado ID: " << var.nome_temp << endl;
                 $$.label = var.nome_temp;
                 $$.traducao = "";
                 $$.tipo = var.tipo;
@@ -666,13 +734,15 @@ info_variavel buscaID(string id)
     bool existeVariavel;
     for(i = nivel; i > -1; i--)
     {
-        if(pilha_variaveis[i].find(id) == pilha_variaveis[i].end())
+
+        if(pilha_variaveis[i][id].nome_temp == "")
         {
             existeVariavel = false;
         }
         else
         {
             existeVariavel = true;
+            cout << "Achei a variavel: " << id << " de nome temporario: " << pilha_variaveis[i][id].nome_temp << " no nível: " << i << endl;
             return pilha_variaveis[i][id];
         }
     }
@@ -683,6 +753,14 @@ info_variavel buscaID(string id)
         info_variavel var = {"","",-1};
         return var;
     }
+}
+
+string geraLabel()
+{
+    stringstream nome_temporario;
+    nome_temporario << "temp_Label_" << contador;
+    contador++;
+    return nome_temporario.str();
 }
 
 void gera_mapa_cast() {

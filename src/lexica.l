@@ -224,6 +224,12 @@ ID {LETRA}({LETRA}|{NUM})*
 				return TK_LOGICO;
 			}
 
+"while"		{
+				yylval.traducao = yytext;
+				yylval.label = yytext;
+				return TK_WHILE;
+			}
+
 {ID}		{ yylval.label = yytext; return TK_ID; }
 .			{ *yytext; }
 

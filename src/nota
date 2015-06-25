@@ -1,0 +1,1 @@
+Sempre que for buscar um ID, deve-se usar a função buscaID. Mas tem um problema. Quando eu quiser alterar um atributo de um ID na pilha, como faço o acesso?
