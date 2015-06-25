@@ -67,7 +67,8 @@ stringstream cabecalho;
 %token TK_ATR TK_SOMA TK_SUB TK_MUL TK_DIV TK_LOGICO TK_AND TK_OR TK_MENOR TK_MAIOR TK_MENOR_IGUAL TK_MAIOR_IGUAL TK_IGUAL TK_DIFERENTE TK_NOT TK_PLUSPLUS TK_SUBSUB
 %token TK_TIPO_INT TK_TIPO_STRING TK_TIPO_FLOAT TK_TIPO_CHAR TK_TIPO_BOOL TK_CONST
 %token TK_FUNCTION
-%token TK_WHILE
+%token TK_WHILE TK_FOR TK_DO
+%token TK_WRITE TK_READ
 
 %start S
 
@@ -161,6 +162,27 @@ COMANDO     : E_OR
                 $$.traducao = $1.traducao;
             }
             ;
+//---------------------------------
+
+COMANDO     : TK_WRITE E_OR
+            {
+                $$.label = $2.label;
+                $$.traducao = $2.traducao + "\n\tcout << " + $2.label + ";\n";
+            }
+            | TK_READ TK_ID
+            {
+                info_variavel var = buscaID($2.label);
+                $$.label = var.nome_temp;
+                $$.traducao = "\n\tcin >> " + var.nome_temp + ";\n\t";
+                $$.tipo = var.tipo;
+                if(var.tipo == "string")
+                    $$.tamanho = 1024;
+                else
+                    $$.tamanho = var.tamanho;
+            }
+            ;
+
+//---------------------------------
 
 //----------------------------------------------------------------------------
 
@@ -171,18 +193,43 @@ COMANDO     : LOOP
             }
             ;
 
+LOOP        : D BLOCO TK_WHILE '(' E_OR ')' 
+            {
+                if($5.tipo != "boolean")
+                {
+                    erro = true;
+                    cout << "Erro na linha: " << nlinha << ". Operação inválida!\n";
+                }
 
-LOOP        :WHILE BLOCO
+                string a = geraLabel();
+                pilha_labels.push(a); pilha_labels.push(a);
+
+                $$.traducao = "\n\n" + pilha_labels.top() + ":\n\n\t" + $2.traducao + $5.traducao;
+                pilha_labels.pop();
+                $$.traducao += "\n\tif(" + $5.label + ") goto " + pilha_labels.top() + ";\n"; 
+                pilha_labels.pop();
+            }
+            | FOR BLOCO
+            {
+                $$.traducao = "\n\n" + $1.traducao + $2.traducao + pilha_labels.top();
+                pilha_labels.pop();
+                $$.traducao += "\n\tgoto " + pilha_labels.top() + ";\n";
+                pilha_labels.pop();
+                $$.traducao += "\n" + pilha_labels.top() + ":\n";
+                pilha_labels.pop();
+            }
+            |WHILE BLOCO
             {
 
                 $$.traducao = "\n\n" + $1.traducao + $2.traducao + "\n\tgoto " + pilha_labels.top() + ";\n";
                 pilha_labels.pop();
                 $$.traducao += "\n" + pilha_labels.top() + ":\n";
                 pilha_labels.pop();
-            };
+            }; 
 
 WHILE       : W '(' E_OR ')'
             {
+
                 if($3.tipo != "boolean")
                 {
                     erro = true;
@@ -205,6 +252,37 @@ W           : TK_WHILE
                 nivel++;
                 pilha_variaveis.push_back(mapa_variaveis);
             };
+
+FOR         : F '(' ATRIBUICAO ';' E_OR ';' ATRIBUICAO ')'
+            {
+                if($5.tipo != "boolean")
+                {
+                    erro = true;
+                    cout << "Erro na linha: " << nlinha << ". Operação inválida!\n";
+                }
+                string a = geraLabel();
+                string b = geraLabel();
+                pilha_labels.push(a); pilha_labels.push(b); pilha_labels.push(a); pilha_labels.push(b);
+
+                $$.traducao = $3.traducao + pilha_labels.top() + ":\n\t" + $5.traducao + "\t";
+                pilha_labels.pop();
+                $$.traducao += $5.label + " = !" + $5.label + ";\n\tif(" + $5.label + ") goto " + pilha_labels.top() + ";\n";
+                pilha_labels.pop();
+                pilha_labels.push($7.traducao);
+            };
+
+F           : TK_FOR
+            {
+                nivel++;
+                pilha_variaveis.push_back(mapa_variaveis);
+            };
+
+D           : TK_DO
+            {
+                nivel++;
+                pilha_variaveis.push_back(mapa_variaveis);
+            };
+
 //----------------------------------------------------------------------------
 
 COMANDO     : ATRIBUICAO
@@ -490,29 +568,38 @@ E_TEMP      : E_TEMP TK_ARIT_OP_M UNAL
             };
 
 
+//Para todas operações, criar verificação se essa operação é válida.
 UNAL        : TK_SUB VAL
             {
                 $$.label = $1.label + $2.label;
                 $$.tipo = $2.tipo;
                 $$.traducao = "";
             }
-            |TK_NOT VAL
+            |TK_NOT TK_ID
             {
-                $$.label = $1.label + $2.label;
-                $$.tipo = $2.tipo;
-                $$.traducao = "";
+                /*Pode ser um VAL, mas tem que verificar se o tipo é booleano
+                info_variavel var = buscaID($2.label);
+                $$.label = var.nome_temp;
+                $$.traducao = "\n\t" + var.nome_temp + " = !" + var.nome_temp + ";\n";
+                $$.tipo = var.tipo;
+                $$.tamanho = var.tamanho;*/
             }
-            |TK_PLUSPLUS VAL
+            |TK_PLUSPLUS TK_ID
             {
-                $$.label = $1.label + $2.label;
-                $$.tipo = $2.tipo;
-                $$.traducao = "";
+                info_variavel var = buscaID($2.label);
+                $$.label = var.nome_temp;
+                $$.traducao = "\n\t" + var.nome_temp + " = " + var.nome_temp + " + 1;\n";
+                $$.tipo = var.tipo;
+                $$.tamanho = var.tamanho;
+                
             }
-            |TK_SUBSUB VAL
+            |TK_SUBSUB TK_ID
             {
-                $$.label = $1.label + $2.label;
-                $$.tipo = $2.tipo;
-                $$.traducao = "";
+                info_variavel var = buscaID($2.label);
+                $$.label = var.nome_temp;
+                $$.traducao = "\n\t" + var.nome_temp + " = " + var.nome_temp + " - 1;\n";
+                $$.tipo = var.tipo;
+                $$.tamanho = var.tamanho;
             }
             | VAL
             {
@@ -597,7 +684,6 @@ VAL         : '(' E_CAST ')' VAL
                 }
                 */
                 info_variavel var = buscaID($1.label);
-                cout << "Encontrado ID: " << var.nome_temp << endl;
                 $$.label = var.nome_temp;
                 $$.traducao = "";
                 $$.tipo = var.tipo;
@@ -632,7 +718,6 @@ E_CAST      : TK_TIPO_FLOAT
                 $$.tipo = "boolean";
             }
             ;
-
 
 TK_REL_OP   : TK_MENOR
             {
@@ -742,7 +827,6 @@ info_variavel buscaID(string id)
         else
         {
             existeVariavel = true;
-            cout << "Achei a variavel: " << id << " de nome temporario: " << pilha_variaveis[i][id].nome_temp << " no nível: " << i << endl;
             return pilha_variaveis[i][id];
         }
     }

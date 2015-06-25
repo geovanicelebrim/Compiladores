@@ -230,6 +230,31 @@ ID {LETRA}({LETRA}|{NUM})*
 				return TK_WHILE;
 			}
 
+"for"		{
+				yylval.traducao = yytext;
+				yylval.label = yytext;
+				return TK_FOR;
+			}
+
+"do"		{
+				yylval.traducao = yytext;
+				yylval.label = yytext;
+				return TK_DO;
+			}
+
+"write"		{
+				yylval.traducao = "cout";
+				yylval.label = yytext;
+				return TK_WRITE;
+			}
+
+"read"		{
+				yylval.traducao = "cin";
+				yylval.label = yytext;
+				return TK_READ;
+			}
+
+
 {ID}		{ yylval.label = yytext; return TK_ID; }
 .			{ *yytext; }
 

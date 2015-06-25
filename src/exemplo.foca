@@ -2,15 +2,11 @@ int main()
 
 begin
 
-	int a = 0;
+	int i;
 
-	while(true)
+	while(i<10)
 	begin
-		
-		while(true)
-		begin
-			a = 50;
-		end;
-		a = 5;
+		++i;
 	end;
+
 end
