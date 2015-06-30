@@ -1,12 +1,14 @@
 int main()
 
 begin
-
-	int i;
-
-	while(i<10)
+	int a;
+	if(2>1)
 	begin
-		++i;
+		a = 5;
+	end
+	else
+	begin
+		a = 1;
 	end;
 
 end

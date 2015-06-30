@@ -242,6 +242,24 @@ ID {LETRA}({LETRA}|{NUM})*
 				return TK_DO;
 			}
 
+"if"		{
+				yylval.traducao = yytext;
+				yylval.label = yytext;
+				return TK_IF;
+			}
+
+"else"		{
+				yylval.traducao = yytext;
+				yylval.label = yytext;
+				return TK_ELSE;
+			}
+
+"elif"		{
+				yylval.traducao = yytext;
+				yylval.label = yytext;
+				return TK_ELIF;
+			}
+
 "write"		{
 				yylval.traducao = "cout";
 				yylval.label = yytext;

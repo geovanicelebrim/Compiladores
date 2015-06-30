@@ -50,7 +50,8 @@ map<string, string> mapa_variaveis_declaracao = map<string, string>();
 vector< map<string, info_variavel> > pilha_variaveis = vector< map<string, info_variavel> >();
 // Mapa de operações
 map<string, info_operacoes> mapa_operacoes = map<string, info_operacoes>();
-stack<string> pilha_labels = stack<string>();
+stack<string> pilha_labels_loop = stack<string>();
+stack<string> pilha_labels_condicional = stack<string>();
 // Função para gerar nomes temporários para as variáveis
 string gera_variavel_temporaria(string tipo, string nome="", int tamanho=0);
 void adiciona_biblioteca_cabecalho(string nome_biblioteca);
@@ -67,7 +68,7 @@ stringstream cabecalho;
 %token TK_ATR TK_SOMA TK_SUB TK_MUL TK_DIV TK_LOGICO TK_AND TK_OR TK_MENOR TK_MAIOR TK_MENOR_IGUAL TK_MAIOR_IGUAL TK_IGUAL TK_DIFERENTE TK_NOT TK_PLUSPLUS TK_SUBSUB
 %token TK_TIPO_INT TK_TIPO_STRING TK_TIPO_FLOAT TK_TIPO_CHAR TK_TIPO_BOOL TK_CONST
 %token TK_FUNCTION
-%token TK_WHILE TK_FOR TK_DO
+%token TK_WHILE TK_FOR TK_DO TK_IF TK_ELSE TK_ELIF
 %token TK_WRITE TK_READ
 
 %start S
@@ -120,7 +121,7 @@ BLOCO   : BEGIN COMANDOS END
                 }
 
                 
-                $$.traducao = $1.traducao + $2.traducao + $3.traducao;
+                $$.traducao = $2.traducao;
                 nivel--;
                 pilha_variaveis.pop_back();
             };
@@ -184,7 +185,7 @@ COMANDO     : TK_WRITE E_OR
 
 //---------------------------------
 
-//----------------------------------------------------------------------------
+//---------------------------LOOP-------------------------------------------------
 
 COMANDO     : LOOP
             {
@@ -202,29 +203,29 @@ LOOP        : D BLOCO TK_WHILE '(' E_OR ')'
                 }
 
                 string a = geraLabel();
-                pilha_labels.push(a); pilha_labels.push(a);
+                pilha_labels_loop.push(a); pilha_labels_loop.push(a);
 
-                $$.traducao = "\n\n" + pilha_labels.top() + ":\n\n\t" + $2.traducao + $5.traducao;
-                pilha_labels.pop();
-                $$.traducao += "\n\tif(" + $5.label + ") goto " + pilha_labels.top() + ";\n"; 
-                pilha_labels.pop();
+                $$.traducao = "\n\n" + pilha_labels_loop.top() + ":\n\n\t" + $2.traducao + $5.traducao;
+                pilha_labels_loop.pop();
+                $$.traducao += "\n\tif(" + $5.label + ") goto " + pilha_labels_loop.top() + ";\n"; 
+                pilha_labels_loop.pop();
             }
             | FOR BLOCO
             {
-                $$.traducao = "\n\n" + $1.traducao + $2.traducao + pilha_labels.top();
-                pilha_labels.pop();
-                $$.traducao += "\n\tgoto " + pilha_labels.top() + ";\n";
-                pilha_labels.pop();
-                $$.traducao += "\n" + pilha_labels.top() + ":\n";
-                pilha_labels.pop();
+                $$.traducao = "\n\n" + $1.traducao + $2.traducao + pilha_labels_loop.top();
+                pilha_labels_loop.pop();
+                $$.traducao += "\n\tgoto " + pilha_labels_loop.top() + ";\n";
+                pilha_labels_loop.pop();
+                $$.traducao += "\n" + pilha_labels_loop.top() + ":\n";
+                pilha_labels_loop.pop();
             }
             |WHILE BLOCO
             {
 
-                $$.traducao = "\n\n" + $1.traducao + $2.traducao + "\n\tgoto " + pilha_labels.top() + ";\n";
-                pilha_labels.pop();
-                $$.traducao += "\n" + pilha_labels.top() + ":\n";
-                pilha_labels.pop();
+                $$.traducao = "\n\n" + $1.traducao + $2.traducao + "\n\tgoto " + pilha_labels_loop.top() + ";\n";
+                pilha_labels_loop.pop();
+                $$.traducao += "\n" + pilha_labels_loop.top() + ":\n";
+                pilha_labels_loop.pop();
             }; 
 
 WHILE       : W '(' E_OR ')'
@@ -239,12 +240,12 @@ WHILE       : W '(' E_OR ')'
                 
                 string a = geraLabel();
                 string b = geraLabel();
-                pilha_labels.push(a); pilha_labels.push(b); pilha_labels.push(a); pilha_labels.push(b);
+                pilha_labels_loop.push(a); pilha_labels_loop.push(b); pilha_labels_loop.push(a); pilha_labels_loop.push(b);
                 
-                $$.traducao = "\n" + pilha_labels.top() + ":\n\t" + $3.traducao + "\t";
-                pilha_labels.pop();
-                $$.traducao += $3.label + " = !" + $3.label + ";\n\tif(" + $3.label + ") goto " + pilha_labels.top() + ";\n"; 
-                pilha_labels.pop();
+                $$.traducao = "\n" + pilha_labels_loop.top() + ":\n\t" + $3.traducao + "\t";
+                pilha_labels_loop.pop();
+                $$.traducao += $3.label + " = !" + $3.label + ";\n\tif(" + $3.label + ") goto " + pilha_labels_loop.top() + ";\n"; 
+                pilha_labels_loop.pop();
 
             };
 W           : TK_WHILE
@@ -262,13 +263,13 @@ FOR         : F '(' ATRIBUICAO ';' E_OR ';' ATRIBUICAO ')'
                 }
                 string a = geraLabel();
                 string b = geraLabel();
-                pilha_labels.push(a); pilha_labels.push(b); pilha_labels.push(a); pilha_labels.push(b);
+                pilha_labels_loop.push(a); pilha_labels_loop.push(b); pilha_labels_loop.push(a); pilha_labels_loop.push(b);
 
-                $$.traducao = $3.traducao + pilha_labels.top() + ":\n\t" + $5.traducao + "\t";
-                pilha_labels.pop();
-                $$.traducao += $5.label + " = !" + $5.label + ";\n\tif(" + $5.label + ") goto " + pilha_labels.top() + ";\n";
-                pilha_labels.pop();
-                pilha_labels.push($7.traducao);
+                $$.traducao = $3.traducao + pilha_labels_loop.top() + ":\n\t" + $5.traducao + "\t";
+                pilha_labels_loop.pop();
+                $$.traducao += $5.label + " = !" + $5.label + ";\n\tif(" + $5.label + ") goto " + pilha_labels_loop.top() + ";\n";
+                pilha_labels_loop.pop();
+                pilha_labels_loop.push($7.traducao);
             };
 
 F           : TK_FOR
@@ -282,6 +283,59 @@ D           : TK_DO
                 nivel++;
                 pilha_variaveis.push_back(mapa_variaveis);
             };
+
+//------------------CONDICIONAL----------------------------------------------------------
+
+COMANDO     : CONDICIONAL
+            {
+                $$.label = $1.label;
+                $$.traducao = $1.traducao;
+            };
+
+CONDICIONAL : IF BLOCO
+			{
+				pilha_labels_condicional.pop();
+                $$.traducao = "\n\n" + $1.traducao + $2.traducao + "\n" + pilha_labels_condicional.top() + ":\n";
+                pilha_labels_condicional.pop(); pilha_labels_condicional.pop();
+			}
+			| IF BLOCO ELSE BLOCO
+			{
+				$$.traducao = "\n\n" + $1.traducao + $2.traducao + "\ngoto " + pilha_labels_condicional.top() + ";\n\t";
+				pilha_labels_condicional.pop();
+				$$.traducao += "\n" + pilha_labels_condicional.top() + ":\n" + $4.traducao;
+                pilha_labels_condicional.pop();
+                $$.traducao += "\n" + pilha_labels_condicional.top() + ":\n";
+                pilha_labels_condicional.pop();
+			};
+
+ELSE 		: TK_ELSE
+			{
+				nivel++;
+                pilha_variaveis.push_back(mapa_variaveis);
+			}
+
+IF 			: I '(' E_OR ')' 
+			{
+				if($3.tipo != "boolean")
+                {
+                    erro = true;
+                    cout << "Erro na linha: " << nlinha << ". Operação inválida!\n";
+                }
+
+                string a = geraLabel();
+                string b = geraLabel();
+                pilha_labels_condicional.push(a); pilha_labels_condicional.push(b); pilha_labels_condicional.push(a); pilha_labels_condicional.push(b);
+        
+                $$.traducao = $3.traducao + "\t" + $3.label + " = !" + $3.label + ";\n\tif(" + $3.label + ") goto " + pilha_labels_condicional.top() + ";\n"; 
+                pilha_labels_condicional.pop();
+
+			};
+
+I 			: TK_IF
+			{
+				nivel++;
+                pilha_variaveis.push_back(mapa_variaveis);
+			};
 
 //----------------------------------------------------------------------------
 
@@ -318,17 +372,7 @@ ATRIBUICAO  : TK_ID TK_ATR E_OR
                         cout << "Erro na linha: " << nlinha << ". Atribuição inválida!\n";
                     }
                 }
-            }
-            | TK_ID TK_ATR TK_LOGICO
-            {
-                $$.traducao = "\n\t" + pilha_variaveis[nivel][$1.label].nome_temp + " = " + $3.traducao + ";\n";
-            }
-            | TK_ID TK_ATR TK_CHAR
-            {
-                
-                $$.traducao = "\n\t" + pilha_variaveis[nivel][$1.label].nome_temp + " = " + $3.label + ";\n";
-            }
-            ;
+            };
 
 DECLARACAO  : TK_TIPO_INT TK_ID TK_ATR E_REL
             {
