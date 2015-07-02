@@ -57,6 +57,7 @@ string gera_variavel_temporaria(string tipo, string nome="", int tamanho=0);
 void adiciona_biblioteca_cabecalho(string nome_biblioteca);
 void gera_mapa_cast();
 info_variavel buscaID(string id);
+void alteraID(string id, info_variavel nova_varivavel);
 string geraLabel();
 
 stringstream cabecalho;
@@ -138,7 +139,8 @@ END         : TK_END
                 $$.traducao = $1.traducao;
             };
 
-COMANDOS    : COMANDO ';' COMANDOS {
+COMANDOS    : COMANDO ';' COMANDOS 
+            {
                 $$.traducao = $1.traducao + $3.traducao;
             }
             |
@@ -348,14 +350,16 @@ COMANDO     : ATRIBUICAO
 
 ATRIBUICAO  : TK_ID TK_ATR E_OR
             {
-                if(pilha_variaveis[nivel][$1.label].tipo == "string" && $3.tipo == "string")
+                if(buscaID($1.label).tipo == "string" && $3.tipo == "string")
                 {
-                    pilha_variaveis[nivel][$1.label].tamanho = $3.tamanho;
-                    $$.traducao = "\t" + $3.traducao + "\n\tstrcpy(" + pilha_variaveis[nivel][$1.label].nome_temp + ", " + $3.label + ");\n";
+                    info_variavel var = buscaID($1.label);
+                    var.tamanho = $3.tamanho;   alteraID($1.label, var);
+                 
+                    $$.traducao = "\t" + $3.traducao + "\n\tstrcpy(" + buscaID($1.label).nome_temp + ", " + $3.label + ");\n";
                 }
                 else    
                 {
-                    string tipo = pilha_variaveis[nivel][$1.label].tipo;
+                    string tipo = buscaID($1.label).tipo;
 
                     if(mapa_operacoes[tipo+$2.label+$3.tipo].operando == 1)
                         $$.traducao = "\t" + $3.traducao + "\n\t" + buscaID($1.label).nome_temp + " = " + "(" + mapa_operacoes[tipo+$2.label+$3.tipo].tipo + ")" + $3.label + ";\n";
@@ -384,13 +388,13 @@ DECLARACAO  : TK_TIPO_INT TK_ID TK_ATR E_REL
                     $$.traducao = "\t" + $4.traducao + "\n\t" + atributos.nome_temp + " = " + $4.label + ";";
                 else{
                     erro = true;
+                    cout << "Erro na linha: " << nlinha << ". Atribuição inválida!\n";
                 }
                 
             }
             | TK_TIPO_INT TK_ID
             {
                 info_variavel atributos = { $1.label, gera_variavel_temporaria($1.label, $2.label)};
-
                 $$.traducao = "\n\t" + atributos.nome_temp + " = " + "0" + ";";
 
             }
@@ -428,7 +432,6 @@ DECLARACAO  : TK_TIPO_INT TK_ID TK_ATR E_REL
             | TK_TIPO_BOOL TK_ID
             {
                 info_variavel atributos = { $1.label, gera_variavel_temporaria($1.label, $2.label)};
-
                 $$.traducao = "\n\t" + atributos.nome_temp + " = " + "1" + ";";
 
             }
@@ -442,15 +445,14 @@ DECLARACAO  : TK_TIPO_INT TK_ID TK_ATR E_REL
                     $$.traducao = "\n\t" + atributos.nome_temp + " = " + $4.label + ";";
                 else{
                     erro = true;
+                    cout << "Erro na linha: " << nlinha << ". Atribuição inválida!\n";
                 }
             }
             | TK_TIPO_CHAR TK_ID
             {
                 info_variavel atributos = { $1.label, gera_variavel_temporaria($1.label, $2.label)};
-
                 $$.traducao = "\n\t" + atributos.nome_temp + " = " + "\'\'" + ";";
-            }
-            ;
+            };
 
             | TK_TIPO_STRING TK_ID TK_ATR E
             {
@@ -489,8 +491,7 @@ E_OR        : E_OR TK_OR E_AND
                 $$.traducao = $1.traducao;
                 $$.tipo = $1.tipo;
                 $$.tamanho = $1.tamanho;
-            }
-            ;
+            };
 
 E_AND   :   E_AND TK_AND E_REL
             {
@@ -505,21 +506,15 @@ E_AND   :   E_AND TK_AND E_REL
                 $$.label = $1.label;
                 $$.traducao = $1.traducao;
                 $$.tipo = $1.tipo;
-            }
-            ;
-
-
+            };
 
 E_REL       : E TK_REL_OP E
             {
 
                 string nome_variavel_temporaria = gera_variavel_temporaria(mapa_operacoes[$1.tipo+$2.label+$3.tipo].tipo);
                 $$.label = nome_variavel_temporaria;
-
                 $$.tipo = mapa_operacoes[$1.tipo+$2.label+$3.tipo].tipo;
-
                 $$.traducao = $1.traducao + $3.traducao + "\n\t" + $$.label + " = " +$1.label + " " + $2.label + " " + $3.label + ";\n";
-                
             }
             | E
             {
@@ -527,31 +522,27 @@ E_REL       : E TK_REL_OP E
                 $$.traducao = $1.traducao;
                 $$.tipo = $1.tipo;
                 $$.tamanho = $1.tamanho;
-            }
-            ;
+            };
 
 E           : E TK_ARIT_OP_S E_TEMP
             {
-                if($1.tipo == "string" && $3.tipo == "string")  
+                if(($1.tipo == "string" && $3.tipo == "string")||($1.tipo == "string" && $3.tipo == "char")||($1.tipo == "char" && $3.tipo == "string"))
                 {
-                    //Veerificar---------------------------------------------------------------------------------------------------
-                    
                     string nome_variavel_temporaria = gera_variavel_temporaria(mapa_operacoes[$1.tipo+$2.label+$3.tipo].tipo, "", $1.tamanho+$3.tamanho);
                     $$.label = nome_variavel_temporaria;
+
                     $$.tamanho = $1.tamanho+$3.tamanho;
                     if(mapa_operacoes[$1.tipo+$2.label+$3.tipo].operando == 0) 
                     {
                         $$.traducao = $3.traducao + "\t" + $1.traducao + "\n";
                         $$.traducao += "\tstrcpy(" + nome_variavel_temporaria + ", strcat(" + $1.label + ", " + $3.label + "));\n";
-                        //mapa_variaveis
                     }
-                    else if(mapa_operacoes[$1.tipo+$2.label+$3.tipo].operando == 1) 
-                    {/*
-                        $$.traducao = $3.traducao + "\t" + $1.traducao + "\n\t" + nome_variavel_temporaria + " = " + "(" + mapa_operacoes[$1.tipo+$2.label+$3.tipo].tipo + ")" + $1.label + ";\n\t";
-                        $$.traducao += nome_variavel_temporaria + " = " + nome_variavel_temporaria + " " + $2.label + " " + $3.label + ";";
-                    */}
+                    else if (mapa_operacoes[$1.tipo+$2.label+$3.tipo].operando != 0 || mapa_operacoes[$1.tipo+$2.label+$3.tipo].tipo == "")
+                    {
+                        erro = true;
+                        cout << "Erro na linha: " << nlinha << ". Operação inválida!\n";
+                    }
                     $$.tipo = "string";
-                    //----------------------------------------------------------------------------------------------------------------
 
                 } else
                 {
@@ -569,6 +560,12 @@ E           : E TK_ARIT_OP_S E_TEMP
                         $$.traducao = $3.traducao + "\t" + $1.traducao + "\n\t" + nome_variavel_temporaria + " = " + "(" + mapa_operacoes[$1.tipo+$2.label+$3.tipo].tipo + ")" + $3.label + ";";
                         $$.traducao += "\n\t" + nome_variavel_temporaria + " = " + $1.label + " " + $2.label + " " + nome_variavel_temporaria + ";";
                     }
+
+                    if (mapa_operacoes[$1.tipo+$2.label+$3.tipo].operando != 0 || mapa_operacoes[$1.tipo+$2.label+$3.tipo].tipo == "")
+                    {
+                        erro = true;
+                        cout << "Erro na linha: " << nlinha << ". Operação inválida!\n";
+                    }
                     $$.tipo = mapa_operacoes[$1.tipo+$2.label+$3.tipo].tipo;
                 }
             }
@@ -578,13 +575,11 @@ E           : E TK_ARIT_OP_S E_TEMP
                 $$.traducao = $1.traducao;
                 $$.tipo = $1.tipo;
                 $$.tamanho = $1.tamanho;
-            }
-            ;
+            };
 
 E_TEMP      : E_TEMP TK_ARIT_OP_M UNAL
             {
                 string nome_variavel_temporaria = gera_variavel_temporaria(mapa_operacoes[$1.tipo+$2.label+$3.tipo].tipo);
-
                 $$.label = nome_variavel_temporaria;
 
                 if(mapa_operacoes[$1.tipo+$2.label+$3.tipo].operando == 0) 
@@ -598,7 +593,12 @@ E_TEMP      : E_TEMP TK_ARIT_OP_M UNAL
                     $$.traducao = $3.traducao + "\t" + $1.traducao + "\n\t" + nome_variavel_temporaria + " = " + "(" + mapa_operacoes[$1.tipo+$2.label+$3.tipo].tipo + ")" + $3.label + ";";
                     $$.traducao += "\n\t" + nome_variavel_temporaria + " = " + $1.label + " " + $2.label + " " + nome_variavel_temporaria + ";";
                 }
-                
+
+                if (mapa_operacoes[$1.tipo+$2.label+$3.tipo].operando != 0 || mapa_operacoes[$1.tipo+$2.label+$3.tipo].tipo == "")
+                {
+                    erro = true;
+                    cout << "Erro na linha: " << nlinha << ". Operação inválida!\n";
+                }
                 $$.tipo = mapa_operacoes[$1.tipo+$2.label+$3.tipo].tipo;
             }   
             | UNAL
@@ -612,19 +612,30 @@ E_TEMP      : E_TEMP TK_ARIT_OP_M UNAL
             };
 
 
-//Para todas operações, criar verificação se essa operação é válida.
 UNAL        : TK_SUB VAL
             {
+                if ($2.tipo == "boolean" || $2.tipo == "string" || $2.tipo == "char")
+                {
+                    erro = true;
+                    cout << "Erro na linha: " << nlinha << ". Operação inválida!\n";
+                }
                 $$.label = $1.label + $2.label;
                 $$.tipo = $2.tipo;
                 $$.traducao = "";
             }
-            |TK_NOT TK_ID
+            |TK_NOT E_REL
             {
-                /*Pode ser um VAL, mas tem que verificar se o tipo é booleano
+                //Para todas operações, criar verificação se essa operação é válida.
+                //Resolver o problema da negação.
+                /*
+                if ($2.tipo != "boolean")
+                {
+                    erro = true;
+                    cout << "Erro na linha: " << nlinha << ". Operação inválida!\n";
+                }
                 info_variavel var = buscaID($2.label);
                 $$.label = var.nome_temp;
-                $$.traducao = "\n\t" + var.nome_temp + " = !" + var.nome_temp + ";\n";
+                $$.traducao = "\n\t" + $2.traducao + "\n\t" + var.nome_temp + " = !" + var.nome_temp + ";\n";
                 $$.tipo = var.tipo;
                 $$.tamanho = var.tamanho;*/
             }
@@ -699,6 +710,7 @@ VAL         : '(' E_CAST ')' VAL
                 string nome_variavel_temporaria = gera_variavel_temporaria($1.tipo);
                 $$.label = nome_variavel_temporaria;
                 $$.tipo = $1.tipo;
+                $$.tamanho = 1;
                 $$.traducao ="\n\t" + nome_variavel_temporaria + " = " + $1.label + ";";
             }
             | TK_LOGICO
@@ -827,7 +839,8 @@ int yyparse();
 
 int contador = 0;
 
-string gera_variavel_temporaria(string tipo, string nome, int tamanho) {
+string gera_variavel_temporaria(string tipo, string nome, int tamanho) 
+{
 
     stringstream nome_temporario;
     string nome_aux;
@@ -852,8 +865,6 @@ string gera_variavel_temporaria(string tipo, string nome, int tamanho) {
         cout << "Erro na linha " << nlinha <<": Você já declarou a variável \"" << nome << "\"." << endl << endl;
         erro = true;
     }
-
-
     return nome_temporario.str();
 }
 
@@ -880,6 +891,31 @@ info_variavel buscaID(string id)
         erro = true;
         info_variavel var = {"","",-1};
         return var;
+    }
+}
+
+void alteraID(string id, info_variavel nova_varivavel)
+{
+    int i;
+    bool existeVariavel;
+    for(i = nivel; i > -1; i--)
+    {
+
+        if(pilha_variaveis[i][id].nome_temp == "")
+        {
+            existeVariavel = false;
+        }
+        else
+        {
+            existeVariavel = true;
+            pilha_variaveis[i][id] = nova_varivavel;
+            break;
+        }
+    }
+    if(!existeVariavel)
+    {
+        cout << "Erro na linha " << nlinha <<": Variável \"" << id << "\" não declarada." << endl << endl;
+        erro = true;
     }
 }
 

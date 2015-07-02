@@ -1,14 +1,9 @@
 int main()
 
 begin
-	int a;
-	if(2>1)
-	begin
-		a = 5;
-	end
-	else
-	begin
-		a = 1;
-	end;
+	boolean a;
+
+	a = true;
+	a = !(!a);
 
 end
