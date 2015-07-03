@@ -1,5 +1,6 @@
 boolean=boolean	boolean	0
 char=char	char	0
+char=string	null	-1
 (int)float	int	0
 (int)int	int	0
 (int)char	int	0
@@ -15,6 +16,10 @@ char=char	char	0
 (boolean)float	null	-1
 (boolean)int	null	-1
 (boolean)char	null	-1
+(boolean)string	null	-1
+(int)string	null	-1
+(char)string	null	-1
+(float)string	null	-1
 (boolean)boolean	boolean	0
 int+char	int	2
 int-char	int	2
@@ -167,6 +172,7 @@ char<=int	null	-1
 char==int	null	-1
 char!=int	null	-1
 string=string	string	0
+string=char	string	0
 string+string	string	0
 string+int	null	-1
 int+string	null	-1
@@ -206,3 +212,9 @@ int/string	null	-1
 char/string	null	-1
 float/string	null	-1
 boolean/string	null	-1
+string>string	boolean	0
+string>=string	boolean	0
+string<string	boolean	0
+string<=string	boolean	0
+string==string	boolean	0
+string!=string	boolean	0

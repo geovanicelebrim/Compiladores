@@ -1,5 +1,3 @@
-Sempre que for buscar um ID, deve-se usar a função buscaID. Mas tem um problema. Quando eu quiser alterar um atributo de um ID na pilha, como faço o acesso?
-R: Talvez seja útil usar o mapa de variáveis de declaração como mapa global de variáveis. Este será sempre o que vai ser escrito no inicio do escopo.
 
 Perminir declaração no for;
 

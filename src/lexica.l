@@ -42,6 +42,13 @@ ID {LETRA}({LETRA}|{NUM})*
 				return TK_CONST;
 			}
 
+"global"	{
+				yylval.traducao = yytext;
+				yylval.label = yytext;
+
+				return TK_GLOBAL;
+			}
+
 "begin"		{
 				yylval.traducao = "\n{\n";
 				yylval.label = yytext;

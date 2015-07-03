@@ -84,7 +84,8 @@ extern int yydebug;
     TK_ELSE = 294,
     TK_ELIF = 295,
     TK_WRITE = 296,
-    TK_READ = 297
+    TK_READ = 297,
+    TK_GLOBAL = 298
   };
 #endif
 /* Tokens.  */
@@ -128,6 +129,7 @@ extern int yydebug;
 #define TK_ELIF 295
 #define TK_WRITE 296
 #define TK_READ 297
+#define TK_GLOBAL 298
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
