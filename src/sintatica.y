@@ -52,6 +52,9 @@ vector< map<string, info_variavel> > pilha_variaveis = vector< map<string, info_
 map<string, info_operacoes> mapa_operacoes = map<string, info_operacoes>();
 stack<string> pilha_labels_loop = stack<string>();
 stack<string> pilha_labels_condicional = stack<string>();
+
+vector<string> pilha_inicio_loop = vector<string>();
+vector<string> pilha_fim_loop = vector<string>();
 // Função para gerar nomes temporários para as variáveis
 string gera_variavel_temporaria(string tipo, string nome="", int tamanho=0);
 void adiciona_biblioteca_cabecalho(string nome_biblioteca);
@@ -69,7 +72,7 @@ stringstream cabecalho;
 %token TK_ATR TK_SOMA TK_SUB TK_MUL TK_DIV TK_LOGICO TK_AND TK_OR TK_MENOR TK_MAIOR TK_MENOR_IGUAL TK_MAIOR_IGUAL TK_IGUAL TK_DIFERENTE TK_NOT TK_PLUSPLUS TK_SUBSUB
 %token TK_TIPO_INT TK_TIPO_STRING TK_TIPO_FLOAT TK_TIPO_CHAR TK_TIPO_BOOL TK_CONST
 %token TK_FUNCTION
-%token TK_WHILE TK_FOR TK_DO TK_IF TK_ELSE TK_ELIF
+%token TK_WHILE TK_FOR TK_DO TK_IF TK_ELSE TK_ELIF TK_BREAK TK_CONTINUE TK_SUPERBREAK TK_SUPERCONTINUE
 %token TK_WRITE TK_READ
 %token TK_GLOBAL
 
@@ -175,6 +178,48 @@ COMANDO     : UNAL_OP
                 $$.label = $1.label;
                 $$.traducao = $1.traducao;
             };
+
+COMANDO 	: TK_BREAK
+			{
+				if(pilha_fim_loop.size() > 0)
+					$$.traducao = "\n\tgoto " + pilha_fim_loop.back() + ";\n";
+				else
+				{
+					erro = true;
+                    cout << "Erro na linha: " << nlinha << ". Operação inválida!\n";
+				}
+
+			}
+			| TK_CONTINUE
+			{
+				if(pilha_inicio_loop.size() > 0)
+					$$.traducao = "\n\tgoto " + pilha_inicio_loop.back() + ";\n";
+				else
+				{
+					erro = true;
+                    cout << "Erro na linha: " << nlinha << ". Operação inválida!\n";
+				}
+			}
+			| TK_SUPERBREAK
+			{
+				if(pilha_fim_loop.size() > 0)
+					$$.traducao = "\n\tgoto " + pilha_fim_loop[0] + ";\n";
+				else
+				{
+					erro = true;
+                    cout << "Erro na linha: " << nlinha << ". Operação inválida!\n";
+				}
+			}
+			| TK_SUPERCONTINUE
+			{
+				if(pilha_inicio_loop.size() > 0)
+					$$.traducao = "\n\tgoto " + pilha_inicio_loop[0] + ";\n";
+				else
+				{
+					erro = true;
+                    cout << "Erro na linha: " << nlinha << ". Operação inválida!\n";
+				}
+			};
 //---------------------------------
 
 COMANDO     : TK_WRITE E_OR
@@ -192,8 +237,7 @@ COMANDO     : TK_WRITE E_OR
                     $$.tamanho = 1024;
                 else
                     $$.tamanho = var.tamanho;
-            }
-            ;
+            };
 
 //---------------------------------
 
@@ -203,8 +247,7 @@ COMANDO     : LOOP
             {
                 $$.label = $1.label;
                 $$.traducao = $1.traducao;
-            }
-            ;
+            };
 
 LOOP        : D BLOCO TK_WHILE '(' E_OR ')' 
             {
@@ -214,13 +257,15 @@ LOOP        : D BLOCO TK_WHILE '(' E_OR ')'
                     cout << "Erro na linha: " << nlinha << ". Operação inválida!\n";
                 }
 
-                string a = geraLabel();
-                pilha_labels_loop.push(a); pilha_labels_loop.push(a);
-
                 $$.traducao = "\n\n" + pilha_labels_loop.top() + ":\n\n\t" + $2.traducao + $5.traducao;
                 pilha_labels_loop.pop();
                 $$.traducao += "\n\tif(" + $5.label + ") goto " + pilha_labels_loop.top() + ";\n"; 
                 pilha_labels_loop.pop();
+                $$.traducao += pilha_labels_loop.top() + ":\n";
+                pilha_labels_loop.pop();
+                pilha_inicio_loop.pop_back();
+                pilha_fim_loop.pop_back();
+
             }
             | FOR BLOCO
             {
@@ -230,6 +275,8 @@ LOOP        : D BLOCO TK_WHILE '(' E_OR ')'
                 pilha_labels_loop.pop();
                 $$.traducao += "\n" + pilha_labels_loop.top() + ":\n";
                 pilha_labels_loop.pop();
+                pilha_inicio_loop.pop_back();
+                pilha_fim_loop.pop_back();
             }
             |WHILE BLOCO
             {
@@ -238,6 +285,8 @@ LOOP        : D BLOCO TK_WHILE '(' E_OR ')'
                 pilha_labels_loop.pop();
                 $$.traducao += "\n" + pilha_labels_loop.top() + ":\n";
                 pilha_labels_loop.pop();
+                pilha_inicio_loop.pop_back();
+                pilha_fim_loop.pop_back();
             }; 
 
 WHILE       : W '(' E_OR ')'
@@ -253,7 +302,8 @@ WHILE       : W '(' E_OR ')'
                 string a = geraLabel();
                 string b = geraLabel();
                 pilha_labels_loop.push(a); pilha_labels_loop.push(b); pilha_labels_loop.push(a); pilha_labels_loop.push(b);
-                
+                pilha_inicio_loop.push_back(pilha_labels_loop.top());
+                pilha_fim_loop.push_back(a);
                 $$.traducao = "\n" + pilha_labels_loop.top() + ":\n\t" + $3.traducao + "\t";
                 pilha_labels_loop.pop();
                 $$.traducao += $3.label + " = !" + $3.label + ";\n\tif(" + $3.label + ") goto " + pilha_labels_loop.top() + ";\n"; 
@@ -276,7 +326,8 @@ FOR         : F '(' ATRIBUICAO ';' E_OR ';' ATRIBUICAO ')'
                 string a = geraLabel();
                 string b = geraLabel();
                 pilha_labels_loop.push(a); pilha_labels_loop.push(b); pilha_labels_loop.push(a); pilha_labels_loop.push(b);
-
+                pilha_inicio_loop.push_back(pilha_labels_loop.top());
+                pilha_fim_loop.push_back(a);
                 $$.traducao = $3.traducao + pilha_labels_loop.top() + ":\n\t" + $5.traducao + "\t";
                 pilha_labels_loop.pop();
                 $$.traducao += $5.label + " = !" + $5.label + ";\n\tif(" + $5.label + ") goto " + pilha_labels_loop.top() + ";\n";
@@ -292,6 +343,10 @@ F           : TK_FOR
 
 D           : TK_DO
             {
+            	string a = geraLabel(); string b = geraLabel();
+                pilha_labels_loop.push(b); pilha_labels_loop.push(a);	pilha_labels_loop.push(a);
+                pilha_inicio_loop.push_back(pilha_labels_loop.top());
+                pilha_fim_loop.push_back(b);
                 nivel++;
                 pilha_variaveis.push_back(mapa_variaveis);
             };

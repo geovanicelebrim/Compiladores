@@ -83,9 +83,13 @@ extern int yydebug;
     TK_IF = 293,
     TK_ELSE = 294,
     TK_ELIF = 295,
-    TK_WRITE = 296,
-    TK_READ = 297,
-    TK_GLOBAL = 298
+    TK_BREAK = 296,
+    TK_CONTINUE = 297,
+    TK_SUPERBREAK = 298,
+    TK_SUPERCONTINUE = 299,
+    TK_WRITE = 300,
+    TK_READ = 301,
+    TK_GLOBAL = 302
   };
 #endif
 /* Tokens.  */
@@ -127,9 +131,13 @@ extern int yydebug;
 #define TK_IF 293
 #define TK_ELSE 294
 #define TK_ELIF 295
-#define TK_WRITE 296
-#define TK_READ 297
-#define TK_GLOBAL 298
+#define TK_BREAK 296
+#define TK_CONTINUE 297
+#define TK_SUPERBREAK 298
+#define TK_SUPERCONTINUE 299
+#define TK_WRITE 300
+#define TK_READ 301
+#define TK_GLOBAL 302
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED

@@ -249,6 +249,30 @@ ID {LETRA}({LETRA}|{NUM})*
 				return TK_DO;
 			}
 
+"break"		{
+				yylval.traducao = yytext;
+				yylval.label = yytext;
+				return TK_BREAK;
+			}
+
+"continue"		{
+				yylval.traducao = yytext;
+				yylval.label = yytext;
+				return TK_CONTINUE;
+			}
+
+"superBreak"		{
+				yylval.traducao = yytext;
+				yylval.label = yytext;
+				return TK_SUPERBREAK;
+			}
+
+"superContinue"		{
+				yylval.traducao = yytext;
+				yylval.label = yytext;
+				return TK_SUPERCONTINUE;
+			}
+
 "if"		{
 				yylval.traducao = yytext;
 				yylval.label = yytext;

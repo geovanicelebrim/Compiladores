@@ -1,9 +1,14 @@
 int main()
 
 begin
-	int a = 1;
+	int a;
+	while(true)
 	begin
-		int a = 2;
-		global a =  a + global a;
-	end
+		while(true)
+		begin
+			++a;
+			superContinue;
+		end;
+		++a;
+	end;
 end
