@@ -2,13 +2,14 @@ int main()
 
 begin
 	int a;
-	while(true)
+	if(true)
 	begin
-		while(true)
-		begin
-			++a;
-			superContinue;
-		end;
-		++a;
+		int a;
+		a = global a + 1;
+	end
+	elif(false)
+	begin
+		--a;
 	end;
+	
 end

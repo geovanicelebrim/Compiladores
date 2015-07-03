@@ -55,6 +55,7 @@ stack<string> pilha_labels_condicional = stack<string>();
 
 vector<string> pilha_inicio_loop = vector<string>();
 vector<string> pilha_fim_loop = vector<string>();
+stack<string> label_final = stack<string>();
 // Função para gerar nomes temporários para as variáveis
 string gera_variavel_temporaria(string tipo, string nome="", int tamanho=0);
 void adiciona_biblioteca_cabecalho(string nome_biblioteca);
@@ -220,7 +221,8 @@ COMANDO 	: TK_BREAK
                     cout << "Erro na linha: " << nlinha << ". Operação inválida!\n";
 				}
 			};
-//---------------------------------
+
+//--------------IO-------------------
 
 COMANDO     : TK_WRITE E_OR
             {
@@ -240,8 +242,6 @@ COMANDO     : TK_WRITE E_OR
             };
 
 //---------------------------------
-
-//---------------------------LOOP-------------------------------------------------
 
 COMANDO     : LOOP
             {
@@ -310,6 +310,7 @@ WHILE       : W '(' E_OR ')'
                 pilha_labels_loop.pop();
 
             };
+
 W           : TK_WHILE
             {
                 nivel++;
@@ -359,27 +360,45 @@ COMANDO     : CONDICIONAL
                 $$.traducao = $1.traducao;
             };
 
-CONDICIONAL : IF BLOCO
+CONDICIONAL : IF BLOCO ELIF ELSE
 			{
-				pilha_labels_condicional.pop();
-                $$.traducao = "\n\n" + $1.traducao + $2.traducao + "\n" + pilha_labels_condicional.top() + ":\n";
-                pilha_labels_condicional.pop(); pilha_labels_condicional.pop();
-			}
-			| IF BLOCO ELSE BLOCO
-			{
-				$$.traducao = "\n\n" + $1.traducao + $2.traducao + "\ngoto " + pilha_labels_condicional.top() + ";\n\t";
-				pilha_labels_condicional.pop();
-				$$.traducao += "\n" + pilha_labels_condicional.top() + ":\n" + $4.traducao;
+                $$.traducao = "\n\n" + $1.traducao + $2.traducao + "\ngoto " + label_final.top() + "\n" + pilha_labels_condicional.top() + ":\n";
                 pilha_labels_condicional.pop();
-                $$.traducao += "\n" + pilha_labels_condicional.top() + ":\n";
-                pilha_labels_condicional.pop();
+                label_final.pop();
+               	$$.traducao += $3.traducao + $4.traducao + label_final.top() + ":\n";
 			};
 
-ELSE 		: TK_ELSE
+ELSE 		: TK_ELSE BLOCO
 			{
-				nivel++;
-                pilha_variaveis.push_back(mapa_variaveis);
+				$$.traducao = $2.traducao;
 			}
+			|
+			{
+				$$.traducao = "";
+			};
+
+ELIF 		: ELIF TK_ELIF '(' E_OR ')' BLOCO
+			{
+				if($4.tipo != "boolean")
+                {
+                    erro = true;
+                    cout << "Erro na linha: " << nlinha << ". Operação inválida!\n";
+                }
+
+                string a = geraLabel();
+                label_final.push(label_final.top());	label_final.push(label_final.top());
+                pilha_labels_condicional.push(a); pilha_labels_condicional.push(a);
+        
+                $$.traducao = "\n\t" + $1.traducao + "\n\t" + $4.traducao + "\t" + $4.label + " = !" + $4.label + ";\n\tif(" + $4.label + ") goto " + pilha_labels_condicional.top() + ";\n"; 
+                pilha_labels_condicional.pop();
+                $$.traducao += $6.traducao + "\ngoto " + label_final.top() + ";\n" + pilha_labels_condicional.top() + ":\n";
+                pilha_labels_condicional.pop();
+                label_final.pop();
+			}
+			|
+			{
+				$$.traducao = "";
+			};
 
 IF 			: I '(' E_OR ')' 
 			{
@@ -389,9 +408,10 @@ IF 			: I '(' E_OR ')'
                     cout << "Erro na linha: " << nlinha << ". Operação inválida!\n";
                 }
 
-                string a = geraLabel();
-                string b = geraLabel();
-                pilha_labels_condicional.push(a); pilha_labels_condicional.push(b); pilha_labels_condicional.push(a); pilha_labels_condicional.push(b);
+
+                string a = geraLabel();	string b = geraLabel();
+                label_final.push(a);	label_final.push(a);
+                pilha_labels_condicional.push(b); pilha_labels_condicional.push(b);
         
                 $$.traducao = $3.traducao + "\t" + $3.label + " = !" + $3.label + ";\n\tif(" + $3.label + ") goto " + pilha_labels_condicional.top() + ";\n"; 
                 pilha_labels_condicional.pop();
