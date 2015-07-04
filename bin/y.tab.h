@@ -88,8 +88,9 @@ extern int yydebug;
     TK_SUPERBREAK = 298,
     TK_SUPERCONTINUE = 299,
     TK_WRITE = 300,
-    TK_READ = 301,
-    TK_GLOBAL = 302
+    TK_WRITELN = 301,
+    TK_READ = 302,
+    TK_GLOBAL = 303
   };
 #endif
 /* Tokens.  */
@@ -136,8 +137,9 @@ extern int yydebug;
 #define TK_SUPERBREAK 298
 #define TK_SUPERCONTINUE 299
 #define TK_WRITE 300
-#define TK_READ 301
-#define TK_GLOBAL 302
+#define TK_WRITELN 301
+#define TK_READ 302
+#define TK_GLOBAL 303
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED

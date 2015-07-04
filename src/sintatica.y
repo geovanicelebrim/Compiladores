@@ -74,7 +74,7 @@ stringstream cabecalho;
 %token TK_TIPO_INT TK_TIPO_STRING TK_TIPO_FLOAT TK_TIPO_CHAR TK_TIPO_BOOL TK_CONST
 %token TK_FUNCTION
 %token TK_WHILE TK_FOR TK_DO TK_IF TK_ELSE TK_ELIF TK_BREAK TK_CONTINUE TK_SUPERBREAK TK_SUPERCONTINUE
-%token TK_WRITE TK_READ
+%token TK_WRITE TK_WRITELN TK_READ
 %token TK_GLOBAL
 
 %start S
@@ -98,9 +98,10 @@ S           : TK_TIPO_INT TK_MAIN '(' ')' BLOCO
                         variaveis << it->second;
                 adiciona_biblioteca_cabecalho("stdio.h");
                 adiciona_biblioteca_cabecalho("string.h");
+                adiciona_biblioteca_cabecalho("iostream");
                 if(!erro) {
                     //cout << "/*Compilador FOCA*/\n" << "#include <iostream>\n#include<string.h>\n#include<stdio.h>\nint main(void)\n{\n" << $5.traducao << "\n\treturn 0;\n}" << endl; 
-                    cout << cabecalho.str() << "\nint main(void)\n{\n" << variaveis.str() << $5.traducao << "\n}\n\t" << endl; 
+                    cout << cabecalho.str() << "\nusing namespace std;\nint main(void)\n{\n" << variaveis.str() << $5.traducao << "\n\treturn 0;\n}\n\t" << endl; 
                 } 
                 //myfile.close();
             }
@@ -222,26 +223,45 @@ COMANDO 	: TK_BREAK
 				}
 			};
 
-//--------------IO-------------------
-
-COMANDO     : TK_WRITE E_OR
+COMANDO     : TK_WRITE WRITE
             {
                 $$.label = $2.label;
-                $$.traducao = $2.traducao + "\n\tcout << " + $2.label + ";\n";
+                $$.traducao = $2.traducao;
+            }
+            | TK_WRITELN WRITE
+            {
+                $$.label = $2.label;
+                $$.traducao = $2.traducao + "\n\tcout << endl;\n";
             }
             | TK_READ TK_ID
             {
                 info_variavel var = buscaID($2.label);
                 $$.label = var.nome_temp;
-                $$.traducao = "\n\tcin >> " + var.nome_temp + ";\n\t";
                 $$.tipo = var.tipo;
                 if(var.tipo == "string")
+                {
                     $$.tamanho = 1024;
+                    var.tamanho = 1024;
+                    alteraID($2.label, var);
+                    $$.traducao = "\n\tcin.getline(" + var.nome_temp + ", 1024);\n\t";
+                }
                 else
+                {
+                	$$.traducao = "\n\tcin >> " + var.nome_temp + ";\n\t";
                     $$.tamanho = var.tamanho;
+                }
             };
 
-//---------------------------------
+WRITE 		: WRITE ',' E_OR
+			{
+				$$.label = $3.label;
+				$$.traducao = $1.traducao + $3.traducao + "\n\tcout << " + $3.label + ";\n";
+			}
+			| E_OR
+			{
+				$$.label = $1.label;
+				$$.traducao = $1.traducao + "\n\tcout << " + $1.label + ";\n";
+			};
 
 COMANDO     : LOOP
             {
@@ -334,6 +354,60 @@ FOR         : F '(' ATRIBUICAO ';' E_OR ';' ATRIBUICAO ')'
                 $$.traducao += $5.label + " = !" + $5.label + ";\n\tif(" + $5.label + ") goto " + pilha_labels_loop.top() + ";\n";
                 pilha_labels_loop.pop();
                 pilha_labels_loop.push($7.traducao);
+            }
+            | F '(' ATRIBUICAO ';' E_OR ';' UNAL_OP ')'
+            {
+                if($5.tipo != "boolean")
+                {
+                    erro = true;
+                    cout << "Erro na linha: " << nlinha << ". Operação inválida!\n";
+                }
+                string a = geraLabel();
+                string b = geraLabel();
+                pilha_labels_loop.push(a); pilha_labels_loop.push(b); pilha_labels_loop.push(a); pilha_labels_loop.push(b);
+                pilha_inicio_loop.push_back(pilha_labels_loop.top());
+                pilha_fim_loop.push_back(a);
+                $$.traducao = $3.traducao + pilha_labels_loop.top() + ":\n\t" + $5.traducao + "\t";
+                pilha_labels_loop.pop();
+                $$.traducao += $5.label + " = !" + $5.label + ";\n\tif(" + $5.label + ") goto " + pilha_labels_loop.top() + ";\n";
+                pilha_labels_loop.pop();
+                pilha_labels_loop.push($7.traducao);
+            }
+            | F '(' DECLARACAO ';' E_OR ';' UNAL_OP ')'
+            {
+                if($5.tipo != "boolean")
+                {
+                    erro = true;
+                    cout << "Erro na linha: " << nlinha << ". Operação inválida!\n";
+                }
+                string a = geraLabel();
+                string b = geraLabel();
+                pilha_labels_loop.push(a); pilha_labels_loop.push(b); pilha_labels_loop.push(a); pilha_labels_loop.push(b);
+                pilha_inicio_loop.push_back(pilha_labels_loop.top());
+                pilha_fim_loop.push_back(a);
+                $$.traducao = $3.traducao + "\n" + pilha_labels_loop.top() + ":\n\t" + $5.traducao + "\t";
+                pilha_labels_loop.pop();
+                $$.traducao += $5.label + " = !" + $5.label + ";\n\tif(" + $5.label + ") goto " + pilha_labels_loop.top() + ";\n";
+                pilha_labels_loop.pop();
+                pilha_labels_loop.push($7.traducao);
+            }
+            | F '(' DECLARACAO ';' E_OR ';' ATRIBUICAO ')'
+            {
+                if($5.tipo != "boolean")
+                {
+                    erro = true;
+                    cout << "Erro na linha: " << nlinha << ". Operação inválida!\n";
+                }
+                string a = geraLabel();
+                string b = geraLabel();
+                pilha_labels_loop.push(a); pilha_labels_loop.push(b); pilha_labels_loop.push(a); pilha_labels_loop.push(b);
+                pilha_inicio_loop.push_back(pilha_labels_loop.top());
+                pilha_fim_loop.push_back(a);
+                $$.traducao = $3.traducao + "\n" + pilha_labels_loop.top() + ":\n\t" + $5.traducao + "\t";
+                pilha_labels_loop.pop();
+                $$.traducao += $5.label + " = !" + $5.label + ";\n\tif(" + $5.label + ") goto " + pilha_labels_loop.top() + ";\n";
+                pilha_labels_loop.pop();
+                pilha_labels_loop.push($7.traducao);
             };
 
 F           : TK_FOR
@@ -352,8 +426,6 @@ D           : TK_DO
                 pilha_variaveis.push_back(mapa_variaveis);
             };
 
-//------------------CONDICIONAL----------------------------------------------------------
-
 COMANDO     : CONDICIONAL
             {
                 $$.label = $1.label;
@@ -362,7 +434,7 @@ COMANDO     : CONDICIONAL
 
 CONDICIONAL : IF BLOCO ELIF ELSE
 			{
-                $$.traducao = "\n\n" + $1.traducao + $2.traducao + "\ngoto " + label_final.top() + "\n" + pilha_labels_condicional.top() + ":\n";
+                $$.traducao = "\n\n" + $1.traducao + $2.traducao + "\ngoto " + label_final.top() + ";\n" + pilha_labels_condicional.top() + ":\n";
                 pilha_labels_condicional.pop();
                 label_final.pop();
                	$$.traducao += $3.traducao + $4.traducao + label_final.top() + ":\n";
@@ -423,8 +495,6 @@ I 			: TK_IF
 				nivel++;
                 pilha_variaveis.push_back(mapa_variaveis);
 			};
-
-//----------------------------------------------------------------------------
 
 COMANDO     : ATRIBUICAO
             {

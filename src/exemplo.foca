@@ -1,15 +1,10 @@
 int main()
 
 begin
-	int a;
-	if(true)
-	begin
-		int a;
-		a = global a + 1;
-	end
-	elif(false)
-	begin
-		--a;
-	end;
 	
+	for(int i; i < 10; i = 2*i)
+	begin
+		writeln "Olá";
+	end;
+
 end

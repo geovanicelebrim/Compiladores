@@ -297,6 +297,12 @@ ID {LETRA}({LETRA}|{NUM})*
 				return TK_WRITE;
 			}
 
+"writeln"		{
+				yylval.traducao = "cout";
+				yylval.label = yytext;
+				return TK_WRITELN;
+			}
+
 "read"		{
 				yylval.traducao = "cin";
 				yylval.label = yytext;
