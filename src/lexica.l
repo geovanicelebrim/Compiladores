@@ -35,13 +35,6 @@ ID {LETRA}({LETRA}|{NUM})*
 				return TK_ATR;
 			}
 
-"const"		{
-				yylval.traducao = yytext;
-				yylval.label = yytext;
-
-				return TK_CONST;
-			}
-
 "global"	{
 				yylval.traducao = yytext;
 				yylval.label = yytext;
@@ -70,6 +63,9 @@ ID {LETRA}({LETRA}|{NUM})*
 
 "function"		{return TK_FUNCTION;}
 
+"func"		{return TK_FUNC;}
+
+"return"		{return TK_RETURN;}
 
 "int"		{
 				yylval.label = yytext;

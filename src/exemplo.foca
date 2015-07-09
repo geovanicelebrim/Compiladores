@@ -1,10 +1,17 @@
-int main()
 
+function int hello(float a, float b)
 begin
-	
-	for(int i; i < 10; i = 2*i)
-	begin
-		writeln "Olá";
-	end;
+	float a = 6;
+	return hello(a, 0.0);
+end
 
+function hello22(float a)
+begin
+	float a = 6;
+end
+
+int main()
+begin
+	int a = hello(0.1, 2.0);
+	func hello22(1.0);
 end

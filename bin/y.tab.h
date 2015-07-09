@@ -53,44 +53,45 @@ extern int yydebug;
     TK_MAIN = 263,
     TK_BEGIN = 264,
     TK_END = 265,
-    TK_ATR = 266,
-    TK_SOMA = 267,
-    TK_SUB = 268,
-    TK_MUL = 269,
-    TK_DIV = 270,
-    TK_LOGICO = 271,
-    TK_AND = 272,
-    TK_OR = 273,
-    TK_MENOR = 274,
-    TK_MAIOR = 275,
-    TK_MENOR_IGUAL = 276,
-    TK_MAIOR_IGUAL = 277,
-    TK_IGUAL = 278,
-    TK_DIFERENTE = 279,
-    TK_NOT = 280,
-    TK_PLUSPLUS = 281,
-    TK_SUBSUB = 282,
-    TK_TIPO_INT = 283,
-    TK_TIPO_STRING = 284,
-    TK_TIPO_FLOAT = 285,
-    TK_TIPO_CHAR = 286,
-    TK_TIPO_BOOL = 287,
-    TK_CONST = 288,
-    TK_FUNCTION = 289,
-    TK_WHILE = 290,
-    TK_FOR = 291,
-    TK_DO = 292,
-    TK_IF = 293,
-    TK_ELSE = 294,
-    TK_ELIF = 295,
-    TK_BREAK = 296,
-    TK_CONTINUE = 297,
-    TK_SUPERBREAK = 298,
-    TK_SUPERCONTINUE = 299,
-    TK_WRITE = 300,
-    TK_WRITELN = 301,
-    TK_READ = 302,
-    TK_GLOBAL = 303
+    TK_TIPO_INT = 266,
+    TK_TIPO_STRING = 267,
+    TK_TIPO_FLOAT = 268,
+    TK_TIPO_CHAR = 269,
+    TK_TIPO_BOOL = 270,
+    TK_ATR = 271,
+    TK_SOMA = 272,
+    TK_SUB = 273,
+    TK_MUL = 274,
+    TK_DIV = 275,
+    TK_LOGICO = 276,
+    TK_AND = 277,
+    TK_OR = 278,
+    TK_MENOR = 279,
+    TK_MAIOR = 280,
+    TK_MENOR_IGUAL = 281,
+    TK_MAIOR_IGUAL = 282,
+    TK_IGUAL = 283,
+    TK_DIFERENTE = 284,
+    TK_NOT = 285,
+    TK_PLUSPLUS = 286,
+    TK_SUBSUB = 287,
+    TK_WHILE = 288,
+    TK_FOR = 289,
+    TK_DO = 290,
+    TK_IF = 291,
+    TK_ELSE = 292,
+    TK_ELIF = 293,
+    TK_BREAK = 294,
+    TK_CONTINUE = 295,
+    TK_SUPERBREAK = 296,
+    TK_SUPERCONTINUE = 297,
+    TK_WRITE = 298,
+    TK_WRITELN = 299,
+    TK_READ = 300,
+    TK_GLOBAL = 301,
+    TK_FUNCTION = 302,
+    TK_RETURN = 303,
+    TK_FUNC = 304
   };
 #endif
 /* Tokens.  */
@@ -102,44 +103,45 @@ extern int yydebug;
 #define TK_MAIN 263
 #define TK_BEGIN 264
 #define TK_END 265
-#define TK_ATR 266
-#define TK_SOMA 267
-#define TK_SUB 268
-#define TK_MUL 269
-#define TK_DIV 270
-#define TK_LOGICO 271
-#define TK_AND 272
-#define TK_OR 273
-#define TK_MENOR 274
-#define TK_MAIOR 275
-#define TK_MENOR_IGUAL 276
-#define TK_MAIOR_IGUAL 277
-#define TK_IGUAL 278
-#define TK_DIFERENTE 279
-#define TK_NOT 280
-#define TK_PLUSPLUS 281
-#define TK_SUBSUB 282
-#define TK_TIPO_INT 283
-#define TK_TIPO_STRING 284
-#define TK_TIPO_FLOAT 285
-#define TK_TIPO_CHAR 286
-#define TK_TIPO_BOOL 287
-#define TK_CONST 288
-#define TK_FUNCTION 289
-#define TK_WHILE 290
-#define TK_FOR 291
-#define TK_DO 292
-#define TK_IF 293
-#define TK_ELSE 294
-#define TK_ELIF 295
-#define TK_BREAK 296
-#define TK_CONTINUE 297
-#define TK_SUPERBREAK 298
-#define TK_SUPERCONTINUE 299
-#define TK_WRITE 300
-#define TK_WRITELN 301
-#define TK_READ 302
-#define TK_GLOBAL 303
+#define TK_TIPO_INT 266
+#define TK_TIPO_STRING 267
+#define TK_TIPO_FLOAT 268
+#define TK_TIPO_CHAR 269
+#define TK_TIPO_BOOL 270
+#define TK_ATR 271
+#define TK_SOMA 272
+#define TK_SUB 273
+#define TK_MUL 274
+#define TK_DIV 275
+#define TK_LOGICO 276
+#define TK_AND 277
+#define TK_OR 278
+#define TK_MENOR 279
+#define TK_MAIOR 280
+#define TK_MENOR_IGUAL 281
+#define TK_MAIOR_IGUAL 282
+#define TK_IGUAL 283
+#define TK_DIFERENTE 284
+#define TK_NOT 285
+#define TK_PLUSPLUS 286
+#define TK_SUBSUB 287
+#define TK_WHILE 288
+#define TK_FOR 289
+#define TK_DO 290
+#define TK_IF 291
+#define TK_ELSE 292
+#define TK_ELIF 293
+#define TK_BREAK 294
+#define TK_CONTINUE 295
+#define TK_SUPERBREAK 296
+#define TK_SUPERCONTINUE 297
+#define TK_WRITE 298
+#define TK_WRITELN 299
+#define TK_READ 300
+#define TK_GLOBAL 301
+#define TK_FUNCTION 302
+#define TK_RETURN 303
+#define TK_FUNC 304
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED

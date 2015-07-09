@@ -1,4 +1,6 @@
+int=void	null	-1
 boolean=boolean	boolean	0
+int=string	null	-1
 char=char	char	0
 char=string	null	-1
 (int)float	int	0
