@@ -6,9 +6,9 @@ Rever quando o retorno é uma string. O tipo da função deve ser um ponteiro pa
 
 Para string, função deve ter tamanho sim.
 
-Adicionar vetor para os outros tipos.
-
 Função com vetor.
+
+Corrigir negação ! ;
 
 --------------------------------------------------------------------------------------
 Rever para VOID. OK.

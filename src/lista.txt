@@ -1,3 +1,8 @@
+struct N
+{
+	char c[1024];
+}; 
+typedef struct N str;
 struct Node
 {
 	int num;
@@ -97,7 +102,7 @@ int mapper(node *indice, node *tam)
 		(tamanho(indice) != tamanho(tam)))
 		{
 			erro = true;
-			printf("Falha de segmentação.\n");
+			printf("\nFalha de segmentação. Tá fodido pra achar o erro...\n");
 			exit(1);
 		}
 		if(tmp_indice->num < 0)
