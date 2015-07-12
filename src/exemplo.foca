@@ -1,17 +1,38 @@
-
-function int hello(float a, float b)
-begin
-	float a = 6;
-	return hello(a, 0.0);
-end
-
-function hello22(float a)
-begin
-	float a = 6;
-end
-
 int main()
 begin
-	int a = hello(0.1, 2.0);
-	func hello22(1.0);
+	
+	int vet[2][2][2];
+	int vet2[2][2][2];
+	int cont;
+	for(int i = 0; i < 2; ++i)
+	begin
+		for(int j = 0; j < 2; ++j)
+		begin
+			for(int k = 0; k < 2; ++k)
+			begin
+				vet[i][j][k] = (float)cont;
+				vet2[i][j][k] = 2*cont;
+				++cont;
+			end;
+		end;
+	end;
+
+	for(int i = 0; i < 2; ++i)
+	begin
+		for(int j = 0; j < 2; ++j)
+		begin
+			for(int k = 0; k < 2; ++k)
+			begin
+				if(j==1)
+				begin
+					writeln "Saindo pelo superBreak com o indice: ", i, ", ", j, ", ", k;
+					superBreak;
+				end;
+				writeln vet[i][j][k];
+				writeln vet2[i][j][k];
+				writeln "-----------";
+			end;
+		end;
+	end;
+
 end

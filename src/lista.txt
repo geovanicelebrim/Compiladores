@@ -1,0 +1,141 @@
+struct Node
+{
+	int num;
+	struct Node *prox;
+}; 
+typedef struct Node node;
+
+int erro = false;
+
+void inicia(node *LISTA)
+{
+	LISTA->prox = NULL;
+}
+
+int vazia(node *LISTA)
+{
+	if(LISTA->prox == NULL)
+		return 1;
+	else
+		return 0;
+}
+
+void insereFim(node *LISTA, int num)
+{
+	node *novo;
+	novo = (node *) malloc(sizeof(node));
+	if(!novo)
+	{
+		printf("Sem memoria disponivel!\n");
+		exit(1);
+	}
+	novo->num = num;
+	novo->prox = NULL;
+	
+	if(vazia(LISTA))
+		LISTA->prox=novo;
+	else
+	{
+		node *tmp = LISTA->prox;
+		
+		while(tmp->prox != NULL)
+			tmp = tmp->prox;
+		
+		tmp->prox = novo;
+	}
+}
+
+void exibe(node *LISTA)
+{
+	if(vazia(LISTA)){
+		printf("Lista vazia!\n\n");
+		return ;
+	}
+	
+	node *tmp;
+	tmp = LISTA->prox;
+	
+	while( tmp != NULL)
+	{
+		printf("%d\n", tmp->num);
+		tmp = tmp->prox;
+	}
+	printf("\n");
+}
+
+int tamanho(node *LISTA)
+{
+	int tamanho = 0;
+	if(vazia(LISTA)){
+		return tamanho;
+	}
+	node *tmp;
+	tmp = LISTA->prox;
+	
+	while( tmp != NULL)
+	{
+		tamanho++;
+		tmp = tmp->prox;
+	}
+	return tamanho;
+}
+
+int mapper(node *indice, node *tam)
+{
+	int endereco = 0;
+	int mult;
+	node *tmp_indice;
+	tmp_indice = indice->prox;
+	node *tmp_tamanho;
+	tmp_tamanho = tam->prox;
+
+	for (int i = 0; i < tamanho(tam); i++)
+	{
+		
+		if ((tmp_indice->num >= tmp_tamanho->num) || 
+		(tmp_indice->num*(-1) > tmp_tamanho->num) || 
+		(tamanho(indice) != tamanho(tam)))
+		{
+			erro = true;
+			printf("Falha de segmentação.\n");
+			exit(1);
+		}
+		if(tmp_indice->num < 0)
+		{
+			tmp_indice->num = tmp_tamanho->num + tmp_indice->num;
+		}
+		tmp_indice = tmp_indice->prox;
+		tmp_tamanho = tmp_tamanho->prox;
+	}
+
+	tmp_indice = indice->prox;
+	tmp_tamanho = tam->prox;
+
+	node *aux = tam->prox;
+
+	for(int i = 0; i < tamanho(tam) - 1; i++)
+	{
+		mult = tmp_indice->num;
+		for(int j = i; j < tamanho(tam) - 1; j++)
+		{
+			mult = mult*tmp_tamanho->num;
+			tmp_tamanho = tmp_tamanho->prox;
+		}
+		tmp_tamanho = aux;
+		endereco += mult;
+		tmp_indice = tmp_indice->prox;
+		aux = aux->prox;
+	}
+
+	int val;
+	tmp_indice = indice->prox;
+	for(int i = 0; i < tamanho(tam); i++)
+	{
+		val = tmp_indice->num;
+		tmp_indice = tmp_indice->prox;
+	}
+
+	endereco += val;
+
+	return endereco;
+}
