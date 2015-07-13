@@ -20,7 +20,7 @@ begin
 		begin
 			for(int k = 0; k < 2; ++k)
 			begin
-				if(i==5)
+				if(i==1)
 				begin
 					writeln "Saindo pelo superBreak com o indice: ", i, ", ", j, ", ", k;
 					superBreak;
@@ -34,5 +34,7 @@ end
 
 int main()
 begin
-	func fun();
+	boolean x;
+	read x;
+	writeln x;
 end

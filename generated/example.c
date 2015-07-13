@@ -157,6 +157,7 @@ int mapper(node *indice, node *tam)
 	char temp_string_EXP_66[2];
 	char temp_string_EXP_67[2];
 	char temp_string_EXP_76[11];
+	char temp_string_EXP_78[6];
 	int temp_boolean_EXP_18;
 	int temp_boolean_EXP_24;
 	int temp_boolean_EXP_30;
@@ -164,6 +165,7 @@ int mapper(node *indice, node *tam)
 	int temp_boolean_EXP_52;
 	int temp_boolean_EXP_58;
 	int temp_boolean_EXP_62;
+	int temp_boolean_x_77;
 	int temp_int_EXP_10;
 	int temp_int_EXP_11;
 	int temp_int_EXP_12;
@@ -197,6 +199,7 @@ int mapper(node *indice, node *tam)
 	int temp_int_EXP_72;
 	int temp_int_EXP_73;
 	int temp_int_EXP_74;
+	int temp_int_EXP_79;
 	int temp_int_EXP_8;
 	int temp_int_EXP_9;
 	int temp_int_i_16;
@@ -343,7 +346,7 @@ temp_Label_60:
 	temp_boolean_EXP_58 = temp_int_k_56 < temp_int_EXP_57;
 	temp_boolean_EXP_58 = !temp_boolean_EXP_58;
 	if(temp_boolean_EXP_58) goto temp_Label_59;
-	temp_int_EXP_61 = 5;
+	temp_int_EXP_61 = 1;
 	temp_boolean_EXP_62 = temp_int_i_44 == temp_int_EXP_61;
 	temp_boolean_EXP_62 = !temp_boolean_EXP_62;
 	if(temp_boolean_EXP_62) goto temp_Label_64;
@@ -425,7 +428,26 @@ temp_Label_47:
 
 int main(void)
 {
-	temp_void_fun_0();
+	temp_boolean_x_77 = 1;
+	cin >> temp_string_EXP_78;
+	temp_int_EXP_79 = strcmp(temp_string_EXP_78, "true" );
+	if(!temp_int_EXP_79 == 0) goto temp_Label_80;
+	temp_boolean_x_77 = 1;
+	goto temp_Label_82;
+temp_Label_80:
+	temp_int_EXP_79 = strcmp(temp_string_EXP_78, "false" );
+	if(!temp_int_EXP_79 == 0) goto temp_Label_81;
+	temp_boolean_x_77 = 0;
+	goto temp_Label_82;
+temp_Label_81:
+	cout << "Valor: " << temp_string_EXP_78 << " inválido!\n";
+	exit(1);
+temp_Label_82:
+	
+	if(temp_boolean_x_77) cout << "true";
+	if(!temp_boolean_x_77) cout << "false";
+
+	cout << endl;
 
 	return 0;
 }

@@ -423,12 +423,15 @@ COMANDO     : TK_WRITE WRITE
                 }
                 else if(var.tipo == "boolean")
                 {
-                	string nome_temp_leitura = gera_variavel_temporaria("string", "teste", 6);
-                	string nome_temp_teste = gera_variavel_temporaria("int", "teste2");
-				
+                	string nome_temp_leitura = gera_variavel_temporaria("string", "", 6);
+                	string nome_temp_teste = gera_variavel_temporaria("int", "");
+					string lb1 = geraLabel(); string lb2 = geraLabel(); string lb3 = geraLabel();
+
                 	$$.traducao = "\n\tcin >> " + nome_temp_leitura + ";\n\t" + nome_temp_teste + " = strcmp(" + nome_temp_leitura + ", \"true\" );\n\t";
-                	$$.traducao += "if(" + nome_temp_teste + " == 0) " + var.nome_temp + " = 1;\n\t";
-                	$$.traducao += "if(" + nome_temp_teste + " != 0) " + var.nome_temp + " = 0;\n\t";
+                	$$.traducao += "if(!" + nome_temp_teste + " == 0) goto " + lb1 + ";\n\t" + var.nome_temp + " = 1;\n\tgoto " + lb3 + ";\n" + lb1 + ":\n\t";
+                	$$.traducao += nome_temp_teste + " = strcmp(" + nome_temp_leitura + ", \"false\" );\n\t";
+                	$$.traducao += "if(!" + nome_temp_teste + " == 0) goto " + lb2 + ";\n\t" + var.nome_temp + " = 0;\n\tgoto " + lb3 + ";\n" + lb2 + ":\n\t";
+                	$$.traducao += "cout << \"Valor: \" << " + nome_temp_leitura + " << \" inválido!\\n\";\n\texit(1);\n" + lb3 + ":\n\t";
 
                 	$$.tamanho = var.tamanho;
                 }
