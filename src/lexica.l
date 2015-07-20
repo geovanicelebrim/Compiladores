@@ -10,25 +10,24 @@ ESPACO [ \t]
 DIGITO [0-9]
 LETRA [A-Za-z_]
 
-
 DELIM {ESPACO}+
 NUM {DIGITO}+
 REAL {NUM}+("."{NUM}+)?
 CHAR \'({LETRA}|{NUM})\'
-
-
 STRING {LETRA}?\"(\\.|[^\\"])*\"|{LETRA}?\'(\\.|[^\\'])*\'
-
 ID {LETRA}({LETRA}|{NUM})*
 
 %%
 
-"\n"		{
-				nlinha++;
-			}
+"\n"		{numero_linha++;}
 
-"#".*\n 	{}
+"\/\/".*"\n"         {numero_linha++;}
 
+"\/\*"(.|["\n"])*"\*\/"         {
+									int i;
+									for( i=0; yytext[i]; yytext[i]=='\n'? i++ : *yytext++);
+									numero_linha+=i;
+								}
 
 "="			{
 				yylval.label = yytext;
@@ -38,21 +37,18 @@ ID {LETRA}({LETRA}|{NUM})*
 "global"	{
 				yylval.traducao = yytext;
 				yylval.label = yytext;
-
 				return TK_GLOBAL;
 			}
 
 "begin"		{
 				yylval.traducao = "\n{\n";
 				yylval.label = yytext;
-
 				return TK_BEGIN;
 			}
 
 "end"		{
 				yylval.traducao = "\n}\n";
 				yylval.label = yytext;
-
 				return TK_END;
 			}
 
@@ -60,12 +56,11 @@ ID {LETRA}({LETRA}|{NUM})*
 
 "main"		{return TK_MAIN;}
 
-
 "function"		{return TK_FUNCTION;}
 
 "func"		{return TK_FUNC;}
 
-"return"		{return TK_RETURN;}
+"return"	{return TK_RETURN;}
 
 "int"		{
 				yylval.label = yytext;
@@ -179,11 +174,13 @@ ID {LETRA}({LETRA}|{NUM})*
 				yylval.label = yytext;
 				return TK_AND;
 			}
+
 "or"		{
-				yylval.traducao = "|";
+				yylval.traducao = "||";
 				yylval.label = yytext;
 				return TK_OR;
 			}
+
 {NUM}		{	
 				yylval.traducao = yytext;
 				yylval.label = yytext;
@@ -251,23 +248,23 @@ ID {LETRA}({LETRA}|{NUM})*
 				return TK_BREAK;
 			}
 
-"continue"		{
+"continue"	{
 				yylval.traducao = yytext;
 				yylval.label = yytext;
 				return TK_CONTINUE;
 			}
 
-"superBreak"		{
-				yylval.traducao = yytext;
-				yylval.label = yytext;
-				return TK_SUPERBREAK;
-			}
+"superBreak"	{
+					yylval.traducao = yytext;
+					yylval.label = yytext;
+					return TK_SUPERBREAK;
+				}
 
-"superContinue"		{
-				yylval.traducao = yytext;
-				yylval.label = yytext;
-				return TK_SUPERCONTINUE;
-			}
+"superContinue"	{
+					yylval.traducao = yytext;
+					yylval.label = yytext;
+					return TK_SUPERCONTINUE;
+				}
 
 "if"		{
 				yylval.traducao = yytext;
@@ -293,7 +290,7 @@ ID {LETRA}({LETRA}|{NUM})*
 				return TK_WRITE;
 			}
 
-"writeln"		{
+"writeln"	{
 				yylval.traducao = "cout";
 				yylval.label = yytext;
 				return TK_WRITELN;
@@ -305,9 +302,13 @@ ID {LETRA}({LETRA}|{NUM})*
 				return TK_READ;
 			}
 
+":"			{
+				yylval.traducao = ":";
+				yylval.label = yytext;
+				return TK_ATE;
+			}
 
 {ID}		{ yylval.label = yytext; return TK_ID; }
 .			{ *yytext; }
 
 %%
-

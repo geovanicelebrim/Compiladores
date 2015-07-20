@@ -1,40 +1,19 @@
-function fun()
+function string foo1(boolean val, char tam)
 begin
-	string vet[2][2][2];
-	string vet2[2][2][2];
-	for(int i = 0; i < 2; ++i)
+	if(tam == 'e')
 	begin
-		for(int j = 0; j < 2; ++j)
-		begin
-			for(int k = 0; k < 2; ++k)
-			begin
-				vet[i][j][k] = "Hello ";
-				vet2[i][j][k] = "world!";
-			end;
-		end;
+		return " -> str()";
 	end;
-
-	for(int i = 0; i < 2; ++i)
-	begin
-		for(int j = 0; j < 2; ++j)
-		begin
-			for(int k = 0; k < 2; ++k)
-			begin
-				if(i==1)
-				begin
-					writeln "Saindo pelo superBreak com o indice: ", i, ", ", j, ", ", k;
-					superBreak;
-				end;
-				writeln vet[i][j][k], vet2[i][j][k];
-				writeln "-----------";
-			end;
-		end;
-	end;
+	writeln val, " ", tam;
+	return foo1(!val, tam+1);
 end
 
 int main()
 begin
-	boolean x;
-	read x;
-	writeln x;
+	string a,b;
+	writeln "Entre com um texto: ";
+	read a;
+	writeln "Entre com outro texto: ";
+	read b;
+	writeln a;
 end

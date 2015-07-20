@@ -1,0 +1,36 @@
+int main()
+begin
+	
+	boolean vet[2][2][2];
+	boolean vet2[2][2][2];
+
+	for(int i = 0; i < 2; ++i)
+	begin
+		for(int j = 0; j < 2; ++j)
+		begin
+			for(int k = 0; k < 2; ++k)
+			begin
+				vet[i][j][k] = (i==j)and(j==k);
+				vet2[i][j][k] = (i!=j)or(j!=k);
+			end;
+		end;
+	end;
+
+	for(int i = 0; i < 2; ++i)
+	begin
+		for(int j = 0; j < 2; ++j)
+		begin
+			for(int k = 0; k < 2; ++k)
+			begin
+				if(i==1)
+				begin
+					writeln "Saindo pelo superBreak com o indice: ", i, ", ", j, ", ", k;
+					superBreak;
+				end;
+				writeln vet[i][j][k], " - ", vet2[i][j][k];
+				writeln "----------------------------";
+			end;
+		end;
+	end;
+
+end

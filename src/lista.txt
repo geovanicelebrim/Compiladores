@@ -10,8 +10,6 @@ struct Node
 }; 
 typedef struct Node node;
 
-int erro = false;
-
 void inicia(node *LISTA)
 {
 	LISTA->prox = NULL;
@@ -19,69 +17,68 @@ void inicia(node *LISTA)
 
 int vazia(node *LISTA)
 {
-	if(LISTA->prox == NULL)
-		return 1;
-	else
-		return 0;
+	int temp;
+	temp = LISTA->prox == NULL;
+	if(!temp) goto l1v;
+	return 1;
+l1v:
+	return 0;
 }
 
 void insereFim(node *LISTA, int num)
 {
 	node *novo;
 	novo = (node *) malloc(sizeof(node));
-	if(!novo)
-	{
-		printf("Sem memoria disponivel!\n");
-		exit(1);
-	}
+	if(novo) goto l2i;
+	printf("Sem memoria disponivel!\n");
+	exit(1);
+l2i:
 	novo->num = num;
 	novo->prox = NULL;
-	
-	if(vazia(LISTA))
-		LISTA->prox=novo;
-	else
-	{
-		node *tmp = LISTA->prox;
-		
-		while(tmp->prox != NULL)
-			tmp = tmp->prox;
-		
-		tmp->prox = novo;
-	}
+	if(!vazia(LISTA)) goto l3i;
+	LISTA->prox=novo;
+	return;
+l3i:
+	node *tmp;
+	tmp = LISTA->prox;
+l4i:
+	if(tmp->prox == NULL) goto l5i;
+	tmp = tmp->prox;
+	goto l4i;
+l5i:
+	tmp->prox = novo;
 }
 
 void exibe(node *LISTA)
 {
-	if(vazia(LISTA)){
-		printf("Lista vazia!\n\n");
-		return ;
-	}
-	
+	if(!vazia(LISTA)) goto l1e;
+	printf("Lista vazia!\n\n");
+	return ;
+l1e:
 	node *tmp;
 	tmp = LISTA->prox;
-	
-	while( tmp != NULL)
-	{
-		printf("%d\n", tmp->num);
-		tmp = tmp->prox;
-	}
+l2e:
+	if( tmp == NULL) goto l3e;
+	printf("%d\n", tmp->num);
+	tmp = tmp->prox;
+	goto l2e;
+l3e:
 	printf("\n");
 }
 
 int tamanho(node *LISTA)
 {
-	int tamanho = 0;
-	if(vazia(LISTA)){
-		return tamanho;
-	}
+	int tamanho;
+	tamanho = 0;
+	if(vazia(LISTA)) return tamanho;
 	node *tmp;
 	tmp = LISTA->prox;
-	
-	while( tmp != NULL)
-	{
-		tamanho++;
-		tmp = tmp->prox;
-	}
+l1t:
+	if(tmp == NULL) goto l2t;
+	tamanho++;
+	tmp = tmp->prox;
+	goto l1t;
+l2t:
 	return tamanho;
 }
 
@@ -93,54 +90,78 @@ int mapper(node *indice, node *tam)
 	tmp_indice = indice->prox;
 	node *tmp_tamanho;
 	tmp_tamanho = tam->prox;
-
-	for (int i = 0; i < tamanho(tam); i++)
-	{
-		
-		if ((tmp_indice->num >= tmp_tamanho->num) || 
-		(tmp_indice->num*(-1) > tmp_tamanho->num) || 
-		(tamanho(indice) != tamanho(tam)))
-		{
-			erro = true;
-			printf("\nFalha de segmentação. Tá fodido pra achar o erro...\n");
-			exit(1);
-		}
-		if(tmp_indice->num < 0)
-		{
-			tmp_indice->num = tmp_tamanho->num + tmp_indice->num;
-		}
-		tmp_indice = tmp_indice->prox;
-		tmp_tamanho = tmp_tamanho->prox;
-	}
-
+	int i;
+	int teste;
+	int t1;
+	int t2;
+	int t3;
+	int t4;
+	i = 0;
+l2m:
+	teste = i < tamanho(tam);
+	if(!teste) goto l1m;
+	t1 = tmp_indice->num >= tmp_tamanho->num;
+	t2 = tmp_indice->num*(-1) > tmp_tamanho->num;
+	t3 = tamanho(indice) != tamanho(tam);
+	if(t1) goto l3m;
+	if(t2) goto l3m;
+	if(t3) goto l3m;
+	goto l4m;
+l3m:
+	printf("\nAcesso a indice não permitido.\n");
+	exit(1);
+l4m:
+	t4 = tmp_indice->num < 0;
+	if(!t4) goto l5m;
+	tmp_indice->num = tmp_tamanho->num + tmp_indice->num;
+l5m:
+	tmp_indice = tmp_indice->prox;
+	tmp_tamanho = tmp_tamanho->prox;
+	i = i + 1;
+	goto l2m;
+l1m:
 	tmp_indice = indice->prox;
 	tmp_tamanho = tam->prox;
-
-	node *aux = tam->prox;
-
-	for(int i = 0; i < tamanho(tam) - 1; i++)
-	{
-		mult = tmp_indice->num;
-		for(int j = i; j < tamanho(tam) - 1; j++)
-		{
-			mult = mult*tmp_tamanho->num;
-			tmp_tamanho = tmp_tamanho->prox;
-		}
-		tmp_tamanho = aux;
-		endereco += mult;
-		tmp_indice = tmp_indice->prox;
-		aux = aux->prox;
-	}
-
+	node *aux;
+	aux = tam->prox;
+	int i2;
+	int i3;
+	int teste2;
+	int teste3;
+	i2 = 0;
+l6m:
+	teste2 = i2 < tamanho(tam) - 1;
+	if(!teste2) goto l7m;
+	mult = tmp_indice->num;
+	i3 = i2;
+l8m:
+	teste3 = i3 < tamanho(tam) - 1;
+	if(!teste3) goto l9m;
+	mult = mult*tmp_tamanho->num;
+	tmp_tamanho = tmp_tamanho->prox;
+	i3 = i3 + 1;
+	goto l8m;
+l9m:
+	tmp_tamanho = aux;
+	endereco += mult;
+	tmp_indice = tmp_indice->prox;
+	aux = aux->prox;
+	i2 = i2 + 1;
+	goto l6m;
+l7m:
+	int i4;
+	int teste4;
 	int val;
+	i4 = 0;
 	tmp_indice = indice->prox;
-	for(int i = 0; i < tamanho(tam); i++)
-	{
-		val = tmp_indice->num;
-		tmp_indice = tmp_indice->prox;
-	}
-
-	endereco += val;
-
+l10m:
+	teste4 = i4 < tamanho(tam);
+	if(!teste4) goto l11m;
+	val = tmp_indice->num;
+	tmp_indice = tmp_indice->prox;
+	i4 = i4 + 1;
+	goto l10m;
+l11m:
+	endereco = endereco + val;
 	return endereco;
 }

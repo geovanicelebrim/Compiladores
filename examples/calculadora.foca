@@ -1,0 +1,74 @@
+function int soma(int a, int b)
+begin
+	return a+b;
+end
+
+function int subtracao(int a, int b)
+begin
+	return a-b;
+end
+
+function int multiplicacao(int a, int b)
+begin
+	return a*b;
+end
+
+function int divisao(int a, int b)
+begin
+	return a/b;
+end
+
+
+int main()
+begin
+	while(true)
+	begin
+		writeln "-----------Calculadora-------------";
+		writeln "\nEscolha que operação deseja fazer:\n",
+				"1: Soma\n",
+				"2: subtração\n",
+				"3: Multiplicação\n",
+				"4: Divisão\n",
+				"0: Sair\n";
+		int val;
+		read val;
+		
+		if(val == 1)
+		begin
+			int a,b;
+			read a;
+			read b;
+			writeln "Resultado: ", soma(a,b);
+		end
+		elif(val == 2)
+		begin
+			int a,b;
+			read a;
+			read b;
+			writeln "Resultado: ", subtracao(a,b);
+		end
+		elif(val == 3)
+		begin
+			int a,b;
+			read a;
+			read b;
+			writeln "Resultado: ", multiplicacao(a,b);
+		end
+		elif(val == 4)
+		begin
+			int a,b;
+			read a;
+			read b;
+			writeln "Resultado: ", divisao(a,b);
+		end
+		elif(val == 0)
+		begin
+			writeln "Finalizado.";
+			break;
+		end
+		else
+		begin
+			writeln "Opção inválida.";
+		end;
+	end;
+end

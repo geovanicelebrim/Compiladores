@@ -1,0 +1,15 @@
+int main()
+begin
+		string a,b;
+		writeln "---------------Inversor-----------------";
+		writeln "Primeira string:";
+		read a;
+		writeln "Segunda string:";
+		read b;
+
+		writeln "\nVariável: a = " ,a , " Variável b = ", b;
+
+		a,b = b,a;
+
+		writeln "\nVariável: a = " ,a , " Variável b = ", b;
+end

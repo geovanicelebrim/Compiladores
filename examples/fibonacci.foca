@@ -1,0 +1,28 @@
+function int Fibonacci(int n)
+begin 
+	int F = 0;
+	int ant = 0;
+	for (int i = 1; i <= n; ++i)
+	begin
+		if (i == 1)
+		begin
+			F = 1;
+			ant = 0;
+		end
+		else
+		begin
+			F = F + ant;
+			ant = F - ant;
+		end;
+	end;
+	return F;
+end
+
+int main()
+begin
+	// Imprime os 30 primeiros termos
+	for(int i = 0; i < 30; ++i)
+	begin
+		writeln i, ": ", Fibonacci(i), "\t";
+	end;
+end
